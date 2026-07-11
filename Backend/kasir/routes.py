@@ -56,7 +56,8 @@ def konfirmasi_tunai():
         transaksi.status_pesanan = 'Diproses'
         transaksi.id_kasir = session.get('user_id')
         db.session.commit()
-        flash('Pembayaran Tunai berhasil dikonfirmasi. Pesanan mulai diproses.', 'success')
+        proses_kirim_nota(transaksi)
+        flash('Pembayaran Tunai berhasil dikonfirmasi. Pesanan mulai diproses & Struk WA otomatis terkirim.', 'success')
     else:
         flash('Kode pembayaran tidak valid atau pesanan sudah diproses.', 'error')
         
@@ -71,7 +72,8 @@ def konfirmasi_qris(id_transaksi):
         transaksi.status_pesanan = 'Diproses'
         transaksi.id_kasir = session.get('user_id')
         db.session.commit()
-        flash('Pembayaran QRIS berhasil dikonfirmasi. Pesanan mulai diproses.', 'success')
+        proses_kirim_nota(transaksi)
+        flash('Pembayaran QRIS berhasil dikonfirmasi. Pesanan mulai diproses & Struk WA otomatis terkirim.', 'success')
     
     return redirect(url_for('kasir.dashboard'))
 
@@ -108,14 +110,9 @@ def toggle_menu(id_menu):
     flash(f'Status {menu.nama_menu} diubah menjadi {menu.status_menu}', 'success')
     return redirect(url_for('kasir.kelola_menu_cepat'))
 
-@kasir_bp.route('/kirim_nota_wa/<int:id_transaksi>')
-def kirim_nota_wa(id_transaksi):
-    if not check_kasir(): return redirect(url_for('auth.login'))
-    transaksi = Transaksi.query.get_or_404(id_transaksi)
-    
+def proses_kirim_nota(transaksi):
     if not transaksi.no_hp_pembeli or len(transaksi.no_hp_pembeli) < 10:
-        flash('Nomor WhatsApp pelanggan tidak valid.', 'error')
-        return redirect(url_for('kasir.dashboard'))
+        return False
         
     tanggal_str = transaksi.tanggal_transaksi.strftime('%d %B %Y')
     format_id = f"{transaksi.id_transaksi:03d}"
@@ -151,8 +148,15 @@ def kirim_nota_wa(id_transaksi):
     pesan += "Silakan tunggu pesanan\n"
     pesan += "dipanggil oleh kasir."
     
-    if send_whatsapp_message(transaksi.no_hp_pembeli, pesan):
-        flash('Nota berhasil dikirim otomatis via WhatsApp (Fonnte)!', 'success')
+    return send_whatsapp_message(transaksi.no_hp_pembeli, pesan)
+
+@kasir_bp.route('/kirim_nota_wa/<int:id_transaksi>')
+def kirim_nota_wa(id_transaksi):
+    if not check_kasir(): return redirect(url_for('auth.login'))
+    transaksi = Transaksi.query.get_or_404(id_transaksi)
+    
+    if proses_kirim_nota(transaksi):
+        flash('Nota berhasil dikirim ulang via WhatsApp (Fonnte)!', 'success')
     else:
         flash('Gagal mengirim Nota WA. Cek token Fonnte atau nomor tujuan.', 'error')
         
