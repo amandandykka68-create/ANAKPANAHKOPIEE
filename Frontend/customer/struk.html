@@ -1,177 +1,216 @@
-{% extends "base.html" %}
-
-{% block title %}Struk Pesanan - Anak Panah Kopi{% endblock %}
-
-{% block extra_css %}
+{% extends "base.html" %} {% block title %}Struk Pesanan - AnakPanahKopiee{%
+endblock %} {% block extra_css %}
 <style>
+  .struk-container {
+    max-width: 450px;
+    margin: 3rem auto;
+    background-color: #fff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(140, 94, 53, 0.1);
+    border-top: 8px solid var(--color-primary);
+    font-family: "Courier New", Courier, monospace; /* Struk style */
+  }
+  .struk-header {
+    text-align: center;
+    border-bottom: 2px dashed #ddd;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .struk-header h2 {
+    color: var(--color-primary-dark);
+    margin: 0 0 0.5rem 0;
+    font-family: "Outfit", sans-serif;
+    font-weight: 800;
+  }
+  .struk-header p {
+    margin: 0.2rem 0;
+    color: #555;
+    font-size: 0.9rem;
+  }
+  .struk-info {
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  .struk-info div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+  }
+  .struk-items {
+    border-top: 2px dashed #ddd;
+    border-bottom: 2px dashed #ddd;
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+  }
+  .s-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  .s-item-name {
+    flex: 1;
+    padding-right: 1rem;
+  }
+  .s-item-qty {
+    width: 30px;
+    text-align: right;
+  }
+  .s-item-price {
+    width: 100px;
+    text-align: right;
+  }
+  .struk-totals {
+    font-size: 1rem;
+    color: #333;
+  }
+  .struk-totals div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .struk-grand {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+  .struk-footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #777;
+  }
+  .action-buttons {
+    max-width: 450px;
+    margin: 0 auto 3rem auto;
+    display: flex;
+    gap: 1rem;
+  }
+  .btn-action {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: bold;
+    font-family: "Outfit", sans-serif;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s;
+  }
+  .btn-lacak {
+    background: linear-gradient(135deg, var(--color-primary), #a0702a);
+    color: white;
+    box-shadow: 0 4px 15px rgba(140, 94, 53, 0.3);
+  }
+  .btn-lacak:hover {
+    transform: translateY(-2px);
+  }
+  .btn-print {
+    background: white;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+  }
+  .btn-print:hover {
+    background: #fdf9f5;
+  }
+
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .struk-container,
+    .struk-container * {
+      visibility: visible;
+    }
     .struk-container {
-        max-width: 450px;
-        margin: 3rem auto;
-        background-color: #fff;
-        padding: 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(140, 94, 53, 0.1);
-        border-top: 8px solid var(--color-primary);
-        font-family: 'Courier New', Courier, monospace; /* Struk style */
-    }
-    .struk-header {
-        text-align: center;
-        border-bottom: 2px dashed #ddd;
-        padding-bottom: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .struk-header h2 {
-        color: var(--color-primary-dark);
-        margin: 0 0 0.5rem 0;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 800;
-    }
-    .struk-header p {
-        margin: 0.2rem 0;
-        color: #555;
-        font-size: 0.9rem;
-    }
-    .struk-info {
-        margin-bottom: 1.5rem;
-        font-size: 0.95rem;
-        color: #333;
-    }
-    .struk-info div {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.4rem;
-    }
-    .struk-items {
-        border-top: 2px dashed #ddd;
-        border-bottom: 2px dashed #ddd;
-        padding: 1.5rem 0;
-        margin-bottom: 1.5rem;
-    }
-    .s-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.8rem;
-        font-size: 0.95rem;
-        color: #333;
-    }
-    .s-item-name {
-        flex: 1;
-        padding-right: 1rem;
-    }
-    .s-item-qty {
-        width: 30px;
-        text-align: right;
-    }
-    .s-item-price {
-        width: 100px;
-        text-align: right;
-    }
-    .struk-totals {
-        font-size: 1rem;
-        color: #333;
-    }
-    .struk-totals div {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
-    }
-    .struk-grand {
-        font-weight: bold;
-        font-size: 1.2rem;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #eee;
-    }
-    .struk-footer {
-        text-align: center;
-        margin-top: 2rem;
-        font-size: 0.9rem;
-        color: #777;
+      position: absolute;
+      left: 0;
+      top: 0;
+      margin: 0;
+      box-shadow: none;
+      border: none;
+      width: 100%;
+      max-width: 100%;
     }
     .action-buttons {
-        max-width: 450px;
-        margin: 0 auto 3rem auto;
-        display: flex;
-        gap: 1rem;
+      display: none;
     }
-    .btn-action {
-        flex: 1;
-        padding: 1rem;
-        border-radius: 10px;
-        font-weight: bold;
-        font-family: 'Outfit', sans-serif;
-        text-align: center;
-        text-decoration: none;
-        cursor: pointer;
-        border: none;
-        transition: transform 0.2s;
-    }
-    .btn-lacak {
-        background: linear-gradient(135deg, var(--color-primary), #A0702A);
-        color: white;
-        box-shadow: 0 4px 15px rgba(140, 94, 53, 0.3);
-    }
-    .btn-lacak:hover { transform: translateY(-2px); }
-    .btn-print {
-        background: white;
-        color: var(--color-primary);
-        border: 2px solid var(--color-primary);
-    }
-    .btn-print:hover { background: #FDF9F5; }
-    
-    @media print {
-        body * { visibility: hidden; }
-        .struk-container, .struk-container * { visibility: visible; }
-        .struk-container { position: absolute; left: 0; top: 0; margin: 0; box-shadow: none; border: none; width: 100%; max-width: 100%; }
-        .action-buttons { display: none; }
-    }
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="struk-container">
-    <div class="struk-header">
-        <h2>ANAK PANAH KOPI</h2>
-        <p>Jl. Coffee Shop No. 123</p>
-        <p>Struk Pembayaran / Invoice</p>
-    </div>
-    
-    <div class="struk-info">
-        <div><span>No. Order:</span> <strong>#ORD-{{ transaksi.id_transaksi }}</strong></div>
-        <div><span>Tanggal:</span> <span>{{ transaksi.tanggal_transaksi.strftime('%d %b %Y %H:%M') if transaksi.tanggal_transaksi else '-' }}</span></div>
-        <div><span>Pelanggan:</span> <span>{{ transaksi.nama_pembeli }}</span></div>
-        <div><span>Nomor Meja:</span> <span>{{ transaksi.nomor_meja }}</span></div>
+  <div class="struk-header">
+    <h2>ANAK PANAH KOPI</h2>
+    <p>Jl. Coffee Shop No. 123</p>
+    <p>Struk Pembayaran / Invoice</p>
+  </div>
 
+  <div class="struk-info">
+    <div>
+      <span>No. Order:</span> <strong>#ORD-{{ transaksi.id_transaksi }}</strong>
     </div>
-    
-    <div class="struk-items">
-        {% for item in items %}
-        <div class="s-item">
-            <div class="s-item-name">{{ item.nama }}</div>
-            <div class="s-item-qty">{{ item.jumlah }}x</div>
-            <div class="s-item-price">{{ "{:,.0f}".format(item.subtotal).replace(',', '.') }}</div>
-        </div>
-        {% endfor %}
+    <div>
+      <span>Tanggal:</span>
+      <span
+        >{{ transaksi.tanggal_transaksi.strftime('%d %b %Y %H:%M') if
+        transaksi.tanggal_transaksi else '-' }}</span
+      >
     </div>
-    
-    <div class="struk-totals">
-        <div><span>Subtotal</span> <span>Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</span></div>
-        <div><span>Metode Pembayaran</span> <span>{{ transaksi.metode_bayar }}</span></div>
-        <div class="struk-grand">
-            <span>TOTAL</span> 
-            <span>Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</span>
-        </div>
+    <div><span>Pelanggan:</span> <span>{{ transaksi.nama_pembeli }}</span></div>
+    <div><span>Nomor Meja:</span> <span>{{ transaksi.nomor_meja }}</span></div>
+  </div>
+
+  <div class="struk-items">
+    {% for item in items %}
+    <div class="s-item">
+      <div class="s-item-name">{{ item.nama }}</div>
+      <div class="s-item-qty">{{ item.jumlah }}x</div>
+      <div class="s-item-price">
+        {{ "{:,.0f}".format(item.subtotal).replace(',', '.') }}
+      </div>
     </div>
-    
-    <div class="struk-footer">
-        <p>Terima kasih atas kunjungan Anda!</p>
-        <p><em>Simpan struk ini sebagai bukti pembayaran.</em></p>
+    {% endfor %}
+  </div>
+
+  <div class="struk-totals">
+    <div>
+      <span>Subtotal</span>
+      <span
+        >Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.')
+        }}</span
+      >
     </div>
+    <div>
+      <span>Metode Pembayaran</span> <span>{{ transaksi.metode_bayar }}</span>
+    </div>
+    <div class="struk-grand">
+      <span>TOTAL</span>
+      <span
+        >Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.')
+        }}</span
+      >
+    </div>
+  </div>
+
+  <div class="struk-footer">
+    <p>Terima kasih atas kunjungan Anda!</p>
+    <p><em>Simpan struk ini sebagai bukti pembayaran.</em></p>
+  </div>
 </div>
 
 <div class="action-buttons">
-    <a href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}" class="btn-action btn-lacak" style="width: 100%;">
-        <i class="fas fa-clipboard-list"></i> Lacak Pesanan
-    </a>
+  <a
+    href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}"
+    class="btn-action btn-lacak"
+    style="width: 100%"
+  >
+    <i class="fas fa-clipboard-list"></i> Lacak Pesanan
+  </a>
 </div>
 {% endblock %}

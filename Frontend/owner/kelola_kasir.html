@@ -1,269 +1,500 @@
-{% extends "dashboard_base.html" %}
-{% block title %}Kelola Kasir - Anak Panah Kopi{% endblock %}
-{% block page_title %}Kelola Kasir{% endblock %}
-
+{% extends "dashboard_base.html" %} {% block title %}Kelola Kasir -
+AnakPanahKopiee{% endblock %} {% block page_title %}Kelola Kasir{% endblock %}
 {% block extra_css %}
 <style>
-    /* Stat mini */
-    .kasir-stat-row {
-        display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;
-    }
-    .kasir-stat {
-        background: white; border-radius: 16px; padding: 1.2rem 1.8rem;
-        box-shadow: 0 4px 20px rgba(140,94,53,0.06);
-        border: 1px solid rgba(240,228,212,0.7);
-        display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 160px;
-    }
-    .kasir-stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-    .ks-brown { background: rgba(140,94,53,0.12); color: #8C5E35; }
-    .ks-green { background: rgba(16,185,129,0.12); color: #059669; }
-    .kasir-stat-info { display: flex; flex-direction: column; }
-    .kasir-stat-label { font-size: 0.72rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; }
-    .kasir-stat-val   { font-size: 1.6rem; font-weight: 900; color: #1A1A2E; }
+  /* Stat mini */
+  .kasir-stat-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .kasir-stat {
+    background: white;
+    border-radius: 16px;
+    padding: 1.2rem 1.8rem;
+    box-shadow: 0 4px 20px rgba(140, 94, 53, 0.06);
+    border: 1px solid rgba(240, 228, 212, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 160px;
+  }
+  .kasir-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .ks-brown {
+    background: rgba(140, 94, 53, 0.12);
+    color: #8c5e35;
+  }
+  .ks-green {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+  }
+  .kasir-stat-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .kasir-stat-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .kasir-stat-val {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #1a1a2e;
+  }
 
-    /* Main card */
-    .main-card {
-        background: white; border-radius: 20px; padding: 1.8rem;
-        box-shadow: 0 8px 32px rgba(140,94,53,0.05);
-        border: 1px solid rgba(240,228,212,0.7);
-        margin-bottom: 2rem;
-    }
-    .main-card-header {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    .main-card-title { font-size: 1.05rem; font-weight: 800; color: #1A1A2E; }
+  /* Main card */
+  .main-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.8rem;
+    box-shadow: 0 8px 32px rgba(140, 94, 53, 0.05);
+    border: 1px solid rgba(240, 228, 212, 0.7);
+    margin-bottom: 2rem;
+  }
+  .main-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .main-card-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1a1a2e;
+  }
 
-    /* Btn tambah */
-    .btn-tambah {
-        display: flex; align-items: center; gap: 0.5rem;
-        padding: 0.65rem 1.4rem;
-        background: linear-gradient(135deg, var(--color-primary), #A0702A);
-        color: white; border: none; border-radius: 10px;
-        font-weight: 700; font-size: 0.88rem;
-        font-family: 'Outfit', sans-serif; cursor: pointer;
-        box-shadow: 0 4px 14px rgba(140,94,53,0.3);
-        transition: transform 0.2s, box-shadow 0.2s; text-decoration: none;
-    }
-    .btn-tambah:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(140,94,53,0.4); }
+  /* Btn tambah */
+  .btn-tambah {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    background: linear-gradient(135deg, var(--color-primary), #a0702a);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(140, 94, 53, 0.3);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-tambah:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(140, 94, 53, 0.4);
+  }
 
-    /* Table */
-    .kasir-table { width: 100%; border-collapse: collapse; }
-    .kasir-table th {
-        font-size: 0.72rem; font-weight: 700; color: #9CA3AF;
-        text-transform: uppercase; letter-spacing: 0.5px;
-        padding: 0.6rem 1rem 1rem 0; text-align: left; border-bottom: 2px solid #F5EDE3;
-    }
-    .kasir-table td {
-        padding: 1rem 1rem 1rem 0; font-size: 0.88rem;
-        border-bottom: 1px solid #FAF4EE; color: #333; vertical-align: middle;
-    }
-    .kasir-table tbody tr:hover td { background: #FDF9F5; }
-    .kasir-table tbody tr:last-child td { border-bottom: none; }
+  /* Table */
+  .kasir-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .kasir-table th {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.6rem 1rem 1rem 0;
+    text-align: left;
+    border-bottom: 2px solid #f5ede3;
+  }
+  .kasir-table td {
+    padding: 1rem 1rem 1rem 0;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #faf4ee;
+    color: #333;
+    vertical-align: middle;
+  }
+  .kasir-table tbody tr:hover td {
+    background: #fdf9f5;
+  }
+  .kasir-table tbody tr:last-child td {
+    border-bottom: none;
+  }
 
-    .avatar-circle {
-        width: 38px; height: 38px; border-radius: 50%;
-        background: linear-gradient(135deg, var(--color-primary), #D4936E);
-        color: white; display: flex; align-items: center; justify-content: center;
-        font-weight: 800; font-size: 1rem;
-    }
-    .badge-aktif {
-        background: #ECFDF5; color: #059669;
-        padding: 0.25rem 0.6rem; border-radius: 20px;
-        font-size: 0.72rem; font-weight: 700;
-    }
-    .action-btns { display: flex; gap: 0.5rem; }
-    .btn-reset {
-        padding: 0.4rem 0.8rem; border-radius: 8px;
-        background: rgba(37,99,235,0.08); color: #2563EB;
-        border: none; cursor: pointer; font-size: 0.78rem; font-weight: 700;
-        font-family: 'Outfit', sans-serif; transition: background 0.2s;
-    }
-    .btn-reset:hover { background: rgba(37,99,235,0.16); }
-    .btn-hapus {
-        padding: 0.4rem 0.8rem; border-radius: 8px;
-        background: rgba(220,38,38,0.08); color: #DC2626;
-        border: none; cursor: pointer; font-size: 0.78rem; font-weight: 700;
-        font-family: 'Outfit', sans-serif; transition: background 0.2s;
-    }
-    .btn-hapus:hover { background: rgba(220,38,38,0.16); }
+  .avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), #d4936e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .badge-aktif {
+    background: #ecfdf5;
+    color: #059669;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .action-btns {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .btn-reset {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    border: none;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: "Outfit", sans-serif;
+    transition: background 0.2s;
+  }
+  .btn-reset:hover {
+    background: rgba(37, 99, 235, 0.16);
+  }
+  .btn-hapus {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+    border: none;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: "Outfit", sans-serif;
+    transition: background 0.2s;
+  }
+  .btn-hapus:hover {
+    background: rgba(220, 38, 38, 0.16);
+  }
 
-    /* Modal */
-    .modal-overlay {
-        display: none; position: fixed; top: 0; left: 0;
-        width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-        z-index: 9999; justify-content: center; align-items: center;
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    .modal-box {
-        background: white; padding: 2rem; border-radius: 20px;
-        width: 100%; max-width: 460px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        animation: slideUp 0.25s ease;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-title { font-size: 1.2rem; font-weight: 800; color: #1A1A2E; margin-bottom: 1.5rem; }
-    .form-row { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
-    .form-row label { font-size: 0.78rem; font-weight: 700; color: #555; }
-    .form-row input {
-        padding: 0.7rem 1rem; border: 1.5px solid #F0E8DC; border-radius: 10px;
-        font-size: 0.9rem; font-family: 'Outfit', sans-serif; color: #333;
-        outline: none; transition: border-color 0.2s;
-    }
-    .form-row input:focus { border-color: var(--color-primary); }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.5rem; }
-    .btn-cancel {
-        padding: 0.65rem 1.4rem; background: #F5F5F5; color: #555;
-        border: none; border-radius: 10px; font-weight: 700;
-        font-family: 'Outfit', sans-serif; cursor: pointer;
-    }
-    .btn-submit {
-        padding: 0.65rem 1.4rem;
-        background: linear-gradient(135deg, var(--color-primary), #A0702A);
-        color: white; border: none; border-radius: 10px;
-        font-weight: 700; font-family: 'Outfit', sans-serif; cursor: pointer;
-        box-shadow: 0 4px 14px rgba(140,94,53,0.3);
-    }
-    .empty-state { text-align: center; padding: 3rem; color: #C4A882; }
-    .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  }
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 1.5rem;
+  }
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+  .form-row label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #555;
+  }
+  .form-row input {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid #f0e8dc;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: "Outfit", sans-serif;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-row input:focus {
+    border-color: var(--color-primary);
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+  .btn-cancel {
+    padding: 0.65rem 1.4rem;
+    background: #f5f5f5;
+    color: #555;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+  }
+  .btn-submit {
+    padding: 0.65rem 1.4rem;
+    background: linear-gradient(135deg, var(--color-primary), #a0702a);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(140, 94, 53, 0.3);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #c4a882;
+  }
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
 </style>
-{% endblock %}
-
-{% block sidebar_menu %}
-    <li><a href="{{ url_for('owner.manajemen_menu') }}"><i class="fas fa-book-open"></i> Manajemen Menu</a></li>
-    <li class="active"><a href="{{ url_for('owner.kelola_kasir') }}"><i class="fas fa-users-cog"></i> Kelola Kasir</a></li>
-    <li><a href="{{ url_for('owner.laporan') }}"><i class="fas fa-chart-bar"></i> Laporan</a></li>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block sidebar_menu %}
+<li>
+  <a href="{{ url_for('owner.manajemen_menu') }}"
+    ><i class="fas fa-book-open"></i> Manajemen Menu</a
+  >
+</li>
+<li class="active">
+  <a href="{{ url_for('owner.kelola_kasir') }}"
+    ><i class="fas fa-users-cog"></i> Kelola Kasir</a
+  >
+</li>
+<li>
+  <a href="{{ url_for('owner.laporan') }}"
+    ><i class="fas fa-chart-bar"></i> Laporan</a
+  >
+</li>
+{% endblock %} {% block content %}
 <!-- Mini Stats -->
 <div class="kasir-stat-row">
-    <div class="kasir-stat">
-        <div class="kasir-stat-icon ks-brown"><i class="fas fa-users"></i></div>
-        <div class="kasir-stat-info">
-            <span class="kasir-stat-label">Total Kasir</span>
-            <span class="kasir-stat-val">{{ kasirs|length }}</span>
-        </div>
+  <div class="kasir-stat">
+    <div class="kasir-stat-icon ks-brown"><i class="fas fa-users"></i></div>
+    <div class="kasir-stat-info">
+      <span class="kasir-stat-label">Total Kasir</span>
+      <span class="kasir-stat-val">{{ kasirs|length }}</span>
     </div>
-    <div class="kasir-stat">
-        <div class="kasir-stat-icon ks-green"><i class="fas fa-user-check"></i></div>
-        <div class="kasir-stat-info">
-            <span class="kasir-stat-label">Akun Aktif</span>
-            <span class="kasir-stat-val">{{ kasirs|length }}</span>
-        </div>
+  </div>
+  <div class="kasir-stat">
+    <div class="kasir-stat-icon ks-green">
+      <i class="fas fa-user-check"></i>
     </div>
+    <div class="kasir-stat-info">
+      <span class="kasir-stat-label">Akun Aktif</span>
+      <span class="kasir-stat-val">{{ kasirs|length }}</span>
+    </div>
+  </div>
 </div>
 
 <!-- Daftar Kasir -->
 <div class="main-card">
-    <div class="main-card-header">
-        <h4 class="main-card-title">Daftar Akun Kasir</h4>
-        <button class="btn-tambah" onclick="document.getElementById('modalTambah').style.display='flex'">
-            <i class="fas fa-plus"></i> Tambah Kasir
-        </button>
-    </div>
+  <div class="main-card-header">
+    <h4 class="main-card-title">Daftar Akun Kasir</h4>
+    <button
+      class="btn-tambah"
+      onclick="document.getElementById('modalTambah').style.display = 'flex'"
+    >
+      <i class="fas fa-plus"></i> Tambah Kasir
+    </button>
+  </div>
 
-    {% if kasirs %}
-    <table class="kasir-table">
-        <thead>
-            <tr>
-                <th>Kasir</th>
-                <th>Username</th>
-                <th>Status</th>
-                <th>Dibuat Pada</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for k in kasirs %}
-            <tr>
-                <td>
-                    <div style="display:flex;align-items:center;gap:0.8rem;">
-                        <div class="avatar-circle">{{ k.nama[0]|upper }}</div>
-                        <span style="font-weight:700;">{{ k.nama }}</span>
-                    </div>
-                </td>
-                <td style="color:#666; font-weight:600;">@{{ k.nama }}</td>
-                <td><span class="badge-aktif"><i class="fas fa-circle" style="font-size:0.5rem;"></i> Aktif</span></td>
-                <td style="color:#9CA3AF;font-size:0.83rem;">{{ k.created_at.strftime('%d %b %Y') if k.created_at else '-' }}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="btn-reset" onclick="openResetModal({{ k.id_user }}, '{{ k.nama }}')">
-                            <i class="fas fa-key"></i> Reset PW
-                        </button>
-                        <form action="{{ url_for('owner.delete_kasir', id_user=k.id_user) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus akun kasir {{ k.nama }}?');">
-                            <button type="submit" class="btn-hapus"><i class="fas fa-trash-alt"></i> Hapus</button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="empty-state">
-        <i class="fas fa-users"></i>
-        <p style="font-weight:600;">Belum ada akun kasir.</p>
-        <p style="font-size:0.85rem;">Klik "Tambah Kasir" untuk membuat akun baru.</p>
-    </div>
-    {% endif %}
+  {% if kasirs %}
+  <table class="kasir-table">
+    <thead>
+      <tr>
+        <th>Kasir</th>
+        <th>Username</th>
+        <th>Status</th>
+        <th>Dibuat Pada</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for k in kasirs %}
+      <tr>
+        <td>
+          <div style="display: flex; align-items: center; gap: 0.8rem">
+            <div class="avatar-circle">{{ k.nama[0]|upper }}</div>
+            <span style="font-weight: 700">{{ k.nama }}</span>
+          </div>
+        </td>
+        <td style="color: #666; font-weight: 600">@{{ k.nama }}</td>
+        <td>
+          <span class="badge-aktif"
+            ><i class="fas fa-circle" style="font-size: 0.5rem"></i> Aktif</span
+          >
+        </td>
+        <td style="color: #9ca3af; font-size: 0.83rem">
+          {{ k.created_at.strftime('%d %b %Y') if k.created_at else '-' }}
+        </td>
+        <td>
+          <div class="action-btns">
+            <button
+              class="btn-reset"
+              onclick="openResetModal({{ k.id_user }}, '{{ k.nama }}')"
+            >
+              <i class="fas fa-key"></i> Reset PW
+            </button>
+            <form
+              action="{{ url_for('owner.delete_kasir', id_user=k.id_user) }}"
+              method="POST"
+              style="display: inline"
+              onsubmit="return confirm('Hapus akun kasir {{ k.nama }}?');"
+            >
+              <button type="submit" class="btn-hapus">
+                <i class="fas fa-trash-alt"></i> Hapus
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-users"></i>
+    <p style="font-weight: 600">Belum ada akun kasir.</p>
+    <p style="font-size: 0.85rem">
+      Klik "Tambah Kasir" untuk membuat akun baru.
+    </p>
+  </div>
+  {% endif %}
 </div>
 
 <!-- Modal Tambah Kasir -->
 <div class="modal-overlay" id="modalTambah">
-    <div class="modal-box">
-        <div class="modal-title"><i class="fas fa-user-plus" style="color:var(--color-primary);margin-right:0.5rem;"></i>Tambah Kasir Baru</div>
-        <form action="{{ url_for('owner.add_kasir') }}" method="POST">
-            <div class="form-row">
-                <label>Username (untuk login)</label>
-                <input type="text" name="nama" placeholder="contoh: kasirBudi" required>
-            </div>
-
-            <div class="form-row">
-                <label>No. HP</label>
-                <input type="text" name="no_hp" placeholder="08xxxxxxxxxx">
-            </div>
-            <div class="form-row">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="Minimal 6 karakter" required>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="document.getElementById('modalTambah').style.display='none'">Batal</button>
-                <button type="submit" class="btn-submit"><i class="fas fa-check"></i> Buat Akun</button>
-            </div>
-        </form>
+  <div class="modal-box">
+    <div class="modal-title">
+      <i
+        class="fas fa-user-plus"
+        style="color: var(--color-primary); margin-right: 0.5rem"
+      ></i
+      >Tambah Kasir Baru
     </div>
+    <form action="{{ url_for('owner.add_kasir') }}" method="POST">
+      <div class="form-row">
+        <label>Username (untuk login)</label>
+        <input
+          type="text"
+          name="nama"
+          placeholder="contoh: kasirBudi"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <label>No. HP</label>
+        <input type="text" name="no_hp" placeholder="08xxxxxxxxxx" />
+      </div>
+      <div class="form-row">
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Minimal 6 karakter"
+          required
+        />
+      </div>
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          onclick="
+            document.getElementById('modalTambah').style.display = 'none'
+          "
+        >
+          Batal
+        </button>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-check"></i> Buat Akun
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- Modal Reset Password -->
 <div class="modal-overlay" id="modalReset">
-    <div class="modal-box">
-        <div class="modal-title"><i class="fas fa-key" style="color:#2563EB;margin-right:0.5rem;"></i>Reset Password Kasir: <span id="resetNama"></span></div>
-        <form id="resetForm" method="POST">
-            <div class="form-row">
-                <label>Password Baru</label>
-                <input type="password" name="new_password" placeholder="Minimal 6 karakter" required>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="document.getElementById('modalReset').style.display='none'">Batal</button>
-                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Simpan</button>
-            </div>
-        </form>
+  <div class="modal-box">
+    <div class="modal-title">
+      <i class="fas fa-key" style="color: #2563eb; margin-right: 0.5rem"></i
+      >Reset Password Kasir: <span id="resetNama"></span>
     </div>
+    <form id="resetForm" method="POST">
+      <div class="form-row">
+        <label>Password Baru</label>
+        <input
+          type="password"
+          name="new_password"
+          placeholder="Minimal 6 karakter"
+          required
+        />
+      </div>
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          onclick="document.getElementById('modalReset').style.display = 'none'"
+        >
+          Batal
+        </button>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-function openResetModal(id, nama) {
-    document.getElementById('resetNama').textContent = nama;
-    document.getElementById('resetForm').action = '/owner/kasir/reset-password/' + id;
-    document.getElementById('modalReset').style.display = 'flex';
-}
-// Close modal on overlay click
-['modalTambah','modalReset'].forEach(id => {
-    document.getElementById(id).addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
+  function openResetModal(id, nama) {
+    document.getElementById("resetNama").textContent = nama;
+    document.getElementById("resetForm").action =
+      "/owner/kasir/reset-password/" + id;
+    document.getElementById("modalReset").style.display = "flex";
+  }
+  // Close modal on overlay click
+  ["modalTambah", "modalReset"].forEach((id) => {
+    document.getElementById(id).addEventListener("click", function (e) {
+      if (e.target === this) this.style.display = "none";
     });
-});
+  });
 </script>
 {% endblock %}

@@ -1,38 +1,124 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Pembayaran QRIS - AnakPanahKopiee{%
+endblock %} {% block content %}
+<div
+  style="
+    max-width: 600px;
+    margin: 4rem auto;
+    text-align: center;
+    background: white;
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  "
+>
+  <h2 style="color: var(--color-primary-dark); margin-bottom: 0.5rem">
+    Pembayaran QRIS
+  </h2>
+  <p style="color: var(--color-text-secondary); margin-bottom: 2rem">
+    Scan QRIS di bawah ini menggunakan aplikasi M-Banking atau E-Wallet Anda.
+  </p>
 
-{% block title %}Pembayaran QRIS - Anak Panah Kopi{% endblock %}
+  <div
+    style="
+      background-color: var(--color-bg);
+      padding: 2rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    "
+  >
+    <p
+      style="
+        font-size: 1.1rem;
+        color: var(--color-text-secondary);
+        margin-bottom: 0.5rem;
+      "
+    >
+      Total Tagihan
+    </p>
+    <h3
+      style="
+        font-size: 2rem;
+        color: var(--color-primary-dark);
+        margin-bottom: 1.5rem;
+      "
+    >
+      Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}
+    </h3>
 
-{% block content %}
-<div style="max-width: 600px; margin: 4rem auto; text-align: center; background: white; padding: 3rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    <h2 style="color: var(--color-primary-dark); margin-bottom: 0.5rem;">Pembayaran QRIS</h2>
-    <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">Scan QRIS di bawah ini menggunakan aplikasi M-Banking atau E-Wallet Anda.</p>
-    
-    <div style="background-color: var(--color-bg); padding: 2rem; border-radius: 10px; margin-bottom: 2rem;">
-        <p style="font-size: 1.1rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Total Tagihan</p>
-        <h3 style="font-size: 2rem; color: var(--color-primary-dark); margin-bottom: 1.5rem;">Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</h3>
-        
-        <img src="{{ qr_image }}" alt="QRIS Code" style="width: 250px; height: 250px; border-radius: 10px; margin-bottom: 1rem;">
-    </div>
-    
-    {% if not transaksi.bukti_pembayaran %}
-    <div style="text-align: left; background-color: #f9f9f9; padding: 1.5rem; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 2rem;">
-        <h4 style="margin-bottom: 1rem; color: var(--color-primary-dark);">Upload Bukti Pembayaran</h4>
-        <form action="{{ url_for('customer.upload_bukti', id_transaksi=transaksi.id_transaksi) }}" method="POST" enctype="multipart/form-data">
-            <input type="file" name="bukti_pembayaran" accept="image/*" required style="margin-bottom: 1rem; width: 100%;">
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Upload Bukti</button>
-        </form>
-    </div>
-    {% else %}
-    <div style="background-color: #d4edda; color: #155724; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; border: 1px solid #c3e6cb;">
-        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-        <h4>Bukti Berhasil Diunggah</h4>
-        <p>Silakan tunggu kasir mengonfirmasi pembayaran Anda.</p>
-    </div>
-    {% endif %}
-    
-    {% if transaksi.status_pesanan != 'Menunggu Pembayaran' %}
-    <a href="{{ url_for('customer.struk', id_transaksi=transaksi.id_transaksi) }}" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;"><i class="fas fa-receipt"></i> Lihat Struk Pembayaran</a>
-    <a href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}" class="btn btn-outline" style="width: 100%;"><i class="fas fa-clipboard-list"></i> Cek Status Pesanan</a>
-    {% endif %}
+    <img
+      src="{{ qr_image }}"
+      alt="QRIS Code"
+      style="
+        width: 250px;
+        height: 250px;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      "
+    />
+  </div>
+
+  {% if not transaksi.bukti_pembayaran %}
+  <div
+    style="
+      text-align: left;
+      background-color: #f9f9f9;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      margin-bottom: 2rem;
+    "
+  >
+    <h4 style="margin-bottom: 1rem; color: var(--color-primary-dark)">
+      Upload Bukti Pembayaran
+    </h4>
+    <form
+      action="{{ url_for('customer.upload_bukti', id_transaksi=transaksi.id_transaksi) }}"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <input
+        type="file"
+        name="bukti_pembayaran"
+        accept="image/*"
+        required
+        style="margin-bottom: 1rem; width: 100%"
+      />
+      <button type="submit" class="btn btn-primary" style="width: 100%">
+        Upload Bukti
+      </button>
+    </form>
+  </div>
+  {% else %}
+  <div
+    style="
+      background-color: #d4edda;
+      color: #155724;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      border: 1px solid #c3e6cb;
+    "
+  >
+    <i
+      class="fas fa-check-circle"
+      style="font-size: 2rem; margin-bottom: 0.5rem"
+    ></i>
+    <h4>Bukti Berhasil Diunggah</h4>
+    <p>Silakan tunggu kasir mengonfirmasi pembayaran Anda.</p>
+  </div>
+  {% endif %} {% if transaksi.status_pesanan != 'Menunggu Pembayaran' %}
+  <a
+    href="{{ url_for('customer.struk', id_transaksi=transaksi.id_transaksi) }}"
+    class="btn btn-primary"
+    style="width: 100%; margin-bottom: 1rem"
+    ><i class="fas fa-receipt"></i> Lihat Struk Pembayaran</a
+  >
+  <a
+    href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}"
+    class="btn btn-outline"
+    style="width: 100%"
+    ><i class="fas fa-clipboard-list"></i> Cek Status Pesanan</a
+  >
+  {% endif %}
 </div>
 {% endblock %}

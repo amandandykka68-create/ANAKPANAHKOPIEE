@@ -1,307 +1,624 @@
-{% extends "dashboard_base.html" %}
-{% block title %}Laporan - Anak Panah Kopi{% endblock %}
-{% block page_title %}Laporan{% endblock %}
-
-{% block extra_css %}
+{% extends "dashboard_base.html" %} {% block title %}Laporan - AnakPanahKopiee{%
+endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    /* Tab */
-    .tab-bar {
-        display: flex; gap: 0.5rem; margin-bottom: 2rem;
-        background: white; border-radius: 14px; padding: 0.4rem;
-        box-shadow: 0 4px 20px rgba(140,94,53,0.05);
-        border: 1px solid rgba(240,228,212,0.7);
-        width: fit-content;
-    }
-    .tab-btn {
-        padding: 0.6rem 1.6rem; border-radius: 10px;
-        border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem;
-        font-family: 'Outfit', sans-serif; transition: all 0.2s;
-        color: #9CA3AF; background: transparent;
-    }
-    .tab-btn.active {
-        background: linear-gradient(135deg, var(--color-primary), #A0702A);
-        color: white; box-shadow: 0 4px 14px rgba(140,94,53,0.3);
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+  /* Tab */
+  .tab-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 14px;
+    padding: 0.4rem;
+    box-shadow: 0 4px 20px rgba(140, 94, 53, 0.05);
+    border: 1px solid rgba(240, 228, 212, 0.7);
+    width: fit-content;
+  }
+  .tab-btn {
+    padding: 0.6rem 1.6rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    font-family: "Outfit", sans-serif;
+    transition: all 0.2s;
+    color: #9ca3af;
+    background: transparent;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--color-primary), #a0702a);
+    color: white;
+    box-shadow: 0 4px 14px rgba(140, 94, 53, 0.3);
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
 
-    /* Filter date */
-    .laporan-filter {
-        background: white; border-radius: 16px; padding: 1rem 1.5rem;
-        margin-bottom: 1.5rem; display: flex; align-items: flex-end; gap: 1rem;
-        flex-wrap: wrap; box-shadow: 0 4px 20px rgba(140,94,53,0.06);
-        border: 1px solid rgba(240,228,212,0.7);
-    }
-    .lf-group { display: flex; flex-direction: column; gap: 0.25rem; }
-    .lf-label { font-size: 0.7rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; }
-    .lf-input, .lf-select {
-        border: 1.5px solid #F0E8DC; border-radius: 10px;
-        padding: 0.55rem 0.9rem; font-size: 0.88rem;
-        font-family: 'Outfit', sans-serif; color: #333;
-        background: #FDFAF7; outline: none; transition: border-color 0.2s;
-    }
-    .lf-input:focus, .lf-select:focus { border-color: var(--color-primary); }
-    .btn-apply {
-        padding: 0.6rem 1.4rem;
-        background: linear-gradient(135deg, var(--color-primary), #A0702A);
-        color: white; border: none; border-radius: 10px;
-        font-weight: 700; font-size: 0.88rem; font-family: 'Outfit', sans-serif;
-        cursor: pointer; box-shadow: 0 4px 14px rgba(140,94,53,0.3);
-        transition: transform 0.2s; display: flex; align-items: center; gap: 0.4rem;
-    }
-    .btn-apply:hover { transform: translateY(-2px); }
+  /* Filter date */
+  .laporan-filter {
+    background: white;
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 20px rgba(140, 94, 53, 0.06);
+    border: 1px solid rgba(240, 228, 212, 0.7);
+  }
+  .lf-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .lf-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .lf-input,
+  .lf-select {
+    border: 1.5px solid #f0e8dc;
+    border-radius: 10px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.88rem;
+    font-family: "Outfit", sans-serif;
+    color: #333;
+    background: #fdfaf7;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .lf-input:focus,
+  .lf-select:focus {
+    border-color: var(--color-primary);
+  }
+  .btn-apply {
+    padding: 0.6rem 1.4rem;
+    background: linear-gradient(135deg, var(--color-primary), #a0702a);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(140, 94, 53, 0.3);
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .btn-apply:hover {
+    transform: translateY(-2px);
+  }
 
-    /* Summary cards */
-    .summary-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .sum-card {
-        background: white; border-radius: 16px; padding: 1.3rem 1.6rem;
-        box-shadow: 0 4px 20px rgba(140,94,53,0.06);
-        border: 1px solid rgba(240,228,212,0.7);
-        flex: 1; min-width: 150px; display: flex; align-items: center; gap: 1rem;
-    }
-    .sum-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-    .si-brown { background: rgba(140,94,53,0.12); color: #8C5E35; }
-    .si-blue  { background: rgba(37,99,235,0.12);  color: #2563EB; }
-    .si-green { background: rgba(16,185,129,0.12); color: #059669; }
-    .sum-info { display: flex; flex-direction: column; }
-    .sum-label { font-size: 0.72rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; }
-    .sum-val   { font-size: 1.5rem; font-weight: 900; color: #1A1A2E; }
+  /* Summary cards */
+  .summary-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .sum-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.3rem 1.6rem;
+    box-shadow: 0 4px 20px rgba(140, 94, 53, 0.06);
+    border: 1px solid rgba(240, 228, 212, 0.7);
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .sum-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .si-brown {
+    background: rgba(140, 94, 53, 0.12);
+    color: #8c5e35;
+  }
+  .si-blue {
+    background: rgba(37, 99, 235, 0.12);
+    color: #2563eb;
+  }
+  .si-green {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+  }
+  .sum-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .sum-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sum-val {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #1a1a2e;
+  }
 
-    /* Chart & table card */
-    .lap-card {
-        background: white; border-radius: 20px; padding: 1.8rem;
-        box-shadow: 0 8px 32px rgba(140,94,53,0.05);
-        border: 1px solid rgba(240,228,212,0.7);
-        margin-bottom: 1.5rem;
-    }
-    .lap-card-title { font-size: 1rem; font-weight: 800; color: #1A1A2E; margin-bottom: 1.2rem; }
+  /* Chart & table card */
+  .lap-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.8rem;
+    box-shadow: 0 8px 32px rgba(140, 94, 53, 0.05);
+    border: 1px solid rgba(240, 228, 212, 0.7);
+    margin-bottom: 1.5rem;
+  }
+  .lap-card-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 1.2rem;
+  }
 
-    /* Top menu progress */
-    .top-item { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.8rem; }
-    .top-bar  { height: 7px; background: #F5EDE3; border-radius: 99px; }
-    .top-fill { height: 100%; background: linear-gradient(90deg, var(--color-primary), #D4936E); border-radius: 99px; }
+  /* Top menu progress */
+  .top-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 0.8rem;
+  }
+  .top-bar {
+    height: 7px;
+    background: #f5ede3;
+    border-radius: 99px;
+  }
+  .top-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), #d4936e);
+    border-radius: 99px;
+  }
 
-    /* Tx table */
-    .ltx-table { width: 100%; border-collapse: collapse; }
-    .ltx-table th { font-size: 0.72rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.5rem 0.8rem 0.8rem 0; text-align: left; border-bottom: 2px solid #F5EDE3; }
-    .ltx-table td { padding: 0.85rem 0.8rem 0.85rem 0; font-size: 0.85rem; border-bottom: 1px solid #FAF4EE; color: #333; }
-    .ltx-table tbody tr:hover td { background: #FDF9F5; }
-    .ltx-table tbody tr:last-child td { border-bottom: none; }
+  /* Tx table */
+  .ltx-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ltx-table th {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0.8rem 0.8rem 0;
+    text-align: left;
+    border-bottom: 2px solid #f5ede3;
+  }
+  .ltx-table td {
+    padding: 0.85rem 0.8rem 0.85rem 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #faf4ee;
+    color: #333;
+  }
+  .ltx-table tbody tr:hover td {
+    background: #fdf9f5;
+  }
+  .ltx-table tbody tr:last-child td {
+    border-bottom: none;
+  }
 
-    .tx-id { font-weight: 700; color: var(--color-primary); }
-    .tx-status { font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 20px; display: inline-block; }
-    .status-selesai  { background: #ECFDF5; color: #059669; }
-    .status-proses   { background: #EFF6FF; color: #2563EB; }
-    .status-batal    { background: #FEF2F2; color: #DC2626; }
-    .status-menunggu { background: #FFFBEB; color: #D97706; }
+  .tx-id {
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  .tx-status {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .status-selesai {
+    background: #ecfdf5;
+    color: #059669;
+  }
+  .status-proses {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+  .status-batal {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  .status-menunggu {
+    background: #fffbeb;
+    color: #d97706;
+  }
 
-    .empty-state { text-align: center; padding: 3rem; color: #C4A882; }
-    .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #c4a882;
+  }
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
 </style>
-{% endblock %}
-
-{% block sidebar_menu %}
-    <li><a href="{{ url_for('owner.manajemen_menu') }}"><i class="fas fa-book-open"></i> Manajemen Menu</a></li>
-    <li><a href="{{ url_for('owner.kelola_kasir') }}"><i class="fas fa-users-cog"></i> Kelola Kasir</a></li>
-    <li class="active"><a href="{{ url_for('owner.laporan') }}"><i class="fas fa-chart-bar"></i> Laporan</a></li>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block sidebar_menu %}
+<li>
+  <a href="{{ url_for('owner.manajemen_menu') }}"
+    ><i class="fas fa-book-open"></i> Manajemen Menu</a
+  >
+</li>
+<li>
+  <a href="{{ url_for('owner.kelola_kasir') }}"
+    ><i class="fas fa-users-cog"></i> Kelola Kasir</a
+  >
+</li>
+<li class="active">
+  <a href="{{ url_for('owner.laporan') }}"
+    ><i class="fas fa-chart-bar"></i> Laporan</a
+  >
+</li>
+{% endblock %} {% block content %}
 <!-- Tab Bar -->
 <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('harian', this)"><i class="fas fa-calendar-day"></i> Harian</button>
-    <button class="tab-btn"        onclick="switchTab('bulanan', this)"><i class="fas fa-calendar-alt"></i> Bulanan</button>
+  <button class="tab-btn active" onclick="switchTab('harian', this)">
+    <i class="fas fa-calendar-day"></i> Harian
+  </button>
+  <button class="tab-btn" onclick="switchTab('bulanan', this)">
+    <i class="fas fa-calendar-alt"></i> Bulanan
+  </button>
 </div>
 
 <!-- ═══════════════════════════════════════
      TAB HARIAN
 ════════════════════════════════════════ -->
 <div class="tab-content active" id="tab-harian">
-    <form method="GET" action="{{ url_for('owner.laporan') }}" id="formHarian">
-        <input type="hidden" name="laporan_bulan" value="{{ laporan_bulan }}">
-        <input type="hidden" name="laporan_tahun" value="{{ laporan_tahun }}">
-        <div class="laporan-filter">
-            <div class="lf-group">
-                <label class="lf-label"><i class="fas fa-calendar-day"></i> Pilih Tanggal</label>
-                <input type="date" name="laporan_tgl" class="lf-input" value="{{ laporan_tgl }}">
-            </div>
-            <button type="submit" class="btn-apply"><i class="fas fa-search"></i> Lihat Laporan</button>
-            <a href="{{ url_for('owner.export_laporan', tipe='harian', tgl=laporan_tgl) }}" class="btn-apply" style="background: linear-gradient(135deg, #10B981, #047857); text-decoration: none; display: flex; align-items: center; gap: 0.4rem;"><i class="fas fa-file-excel"></i> Export Excel</a>
-        </div>
-    </form>
-
-    <!-- Summary Cards -->
-    <div class="summary-row">
-        <div class="sum-card">
-            <div class="sum-icon si-brown"><i class="fas fa-coins"></i></div>
-            <div class="sum-info">
-                <span class="sum-label">Pendapatan Harian</span>
-                <span class="sum-val">Rp {{ "{:,.0f}".format(pendapatan_harian).replace(',', '.') }}</span>
-            </div>
-        </div>
-        <div class="sum-card">
-            <div class="sum-icon si-blue"><i class="fas fa-receipt"></i></div>
-            <div class="sum-info">
-                <span class="sum-label">Total Transaksi</span>
-                <span class="sum-val">{{ tx_harian|length }}</span>
-            </div>
-        </div>
-        <div class="sum-card">
-            <div class="sum-icon si-green"><i class="fas fa-check-double"></i></div>
-            <div class="sum-info">
-                <span class="sum-label">Pesanan Selesai</span>
-                <span class="sum-val">{{ tx_harian|selectattr('status_pesanan', 'equalto', 'Selesai')|list|length }}</span>
-            </div>
-        </div>
+  <form method="GET" action="{{ url_for('owner.laporan') }}" id="formHarian">
+    <input type="hidden" name="laporan_bulan" value="{{ laporan_bulan }}" />
+    <input type="hidden" name="laporan_tahun" value="{{ laporan_tahun }}" />
+    <div class="laporan-filter">
+      <div class="lf-group">
+        <label class="lf-label"
+          ><i class="fas fa-calendar-day"></i> Pilih Tanggal</label
+        >
+        <input
+          type="date"
+          name="laporan_tgl"
+          class="lf-input"
+          value="{{ laporan_tgl }}"
+        />
+      </div>
+      <button type="submit" class="btn-apply">
+        <i class="fas fa-search"></i> Lihat Laporan
+      </button>
+      <a
+        href="{{ url_for('owner.export_laporan', tipe='harian', tgl=laporan_tgl) }}"
+        class="btn-apply"
+        style="
+          background: linear-gradient(135deg, #10b981, #047857);
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        "
+        ><i class="fas fa-file-excel"></i> Export Excel</a
+      >
     </div>
+  </form>
 
-    <!-- Top Menu Harian -->
-    {% if top_menu_harian %}
-    <div class="lap-card">
-        <div class="lap-card-title"><i class="fas fa-trophy" style="color:#D97706;margin-right:0.5rem;"></i>Menu Terlaris Hari Ini</div>
-        {% set max_qty = top_menu_harian[0][1].qty if top_menu_harian else 1 %}
-        {% for nama_m, info in top_menu_harian %}
-        <div class="top-item">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
-                <span style="font-weight:600;color:#333;">{{ nama_m }}</span>
-                <span style="font-weight:800;color:var(--color-primary);">{{ info.qty }} pcs · Rp {{ "{:,.0f}".format(info.revenue).replace(',', '.') }}</span>
-            </div>
-            <div class="top-bar"><div class="top-fill" style="width:{{ (info.qty / max_qty * 100)|int }}%;"></div></div>
-        </div>
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="sum-card">
+      <div class="sum-icon si-brown"><i class="fas fa-coins"></i></div>
+      <div class="sum-info">
+        <span class="sum-label">Pendapatan Harian</span>
+        <span class="sum-val"
+          >Rp {{ "{:,.0f}".format(pendapatan_harian).replace(',', '.') }}</span
+        >
+      </div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon si-blue"><i class="fas fa-receipt"></i></div>
+      <div class="sum-info">
+        <span class="sum-label">Total Transaksi</span>
+        <span class="sum-val">{{ tx_harian|length }}</span>
+      </div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon si-green"><i class="fas fa-check-double"></i></div>
+      <div class="sum-info">
+        <span class="sum-label">Pesanan Selesai</span>
+        <span class="sum-val"
+          >{{ tx_harian|selectattr('status_pesanan', 'equalto',
+          'Selesai')|list|length }}</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Menu Harian -->
+  {% if top_menu_harian %}
+  <div class="lap-card">
+    <div class="lap-card-title">
+      <i class="fas fa-trophy" style="color: #d97706; margin-right: 0.5rem"></i
+      >Menu Terlaris Hari Ini
+    </div>
+    {% set max_qty = top_menu_harian[0][1].qty if top_menu_harian else 1 %} {%
+    for nama_m, info in top_menu_harian %}
+    <div class="top-item">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.85rem;
+        "
+      >
+        <span style="font-weight: 600; color: #333">{{ nama_m }}</span>
+        <span style="font-weight: 800; color: var(--color-primary)"
+          >{{ info.qty }} pcs · Rp {{
+          "{:,.0f}".format(info.revenue).replace(',', '.') }}</span
+        >
+      </div>
+      <div class="top-bar">
+        <div
+          class="top-fill"
+          style="width:{{ (info.qty / max_qty * 100)|int }}%;"
+        ></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Tabel Transaksi Harian -->
+  <div class="lap-card">
+    <div class="lap-card-title">
+      <i
+        class="fas fa-list"
+        style="color: var(--color-primary); margin-right: 0.5rem"
+      ></i
+      >Detail Transaksi — {{ laporan_tgl }}
+    </div>
+    {% if tx_harian %}
+    <table class="ltx-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Jam</th>
+          <th>Pembeli</th>
+          <th>Menu</th>
+          <th>Total</th>
+          <th>Metode</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tx_harian %}
+        <tr>
+          <td><span class="tx-id">#ORD-{{ t.id_transaksi }}</span></td>
+          <td style="color: #9ca3af">
+            {{ t.tanggal_transaksi.strftime('%H:%M') }}
+          </td>
+          <td style="font-weight: 600">{{ t.nama_pembeli }}</td>
+          <td style="color: #555; font-size: 0.82rem; max-width: 200px">
+            {% for d in t._details %}{{ d.jumlah }}x {{ d._menu.nama_menu if
+            d._menu else '?' }}{% if not loop.last %}, {% endif %}{% endfor %}
+          </td>
+          <td style="font-weight: 800">
+            Rp {{ "{:,.0f}".format(t.total_harga).replace(',', '.') }}
+          </td>
+          <td>{{ t.metode_bayar }}</td>
+        </tr>
         {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-receipt"></i>
+      <p style="font-weight: 600">Tidak ada transaksi pada tanggal ini.</p>
     </div>
     {% endif %}
-
-    <!-- Tabel Transaksi Harian -->
-    <div class="lap-card">
-        <div class="lap-card-title"><i class="fas fa-list" style="color:var(--color-primary);margin-right:0.5rem;"></i>Detail Transaksi — {{ laporan_tgl }}</div>
-        {% if tx_harian %}
-        <table class="ltx-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Jam</th>
-                    <th>Pembeli</th>
-                    <th>Menu</th>
-                    <th>Total</th>
-                    <th>Metode</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for t in tx_harian %}
-                <tr>
-                    <td><span class="tx-id">#ORD-{{ t.id_transaksi }}</span></td>
-                    <td style="color:#9CA3AF;">{{ t.tanggal_transaksi.strftime('%H:%M') }}</td>
-                    <td style="font-weight:600;">{{ t.nama_pembeli }}</td>
-                    <td style="color:#555;font-size:0.82rem;max-width:200px;">
-                        {% for d in t._details %}{{ d.jumlah }}x {{ d._menu.nama_menu if d._menu else '?' }}{% if not loop.last %}, {% endif %}{% endfor %}
-                    </td>
-                    <td style="font-weight:800;">Rp {{ "{:,.0f}".format(t.total_harga).replace(',', '.') }}</td>
-                    <td>{{ t.metode_bayar }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="empty-state">
-            <i class="fas fa-receipt"></i>
-            <p style="font-weight:600;">Tidak ada transaksi pada tanggal ini.</p>
-        </div>
-        {% endif %}
-    </div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════
      TAB BULANAN
 ════════════════════════════════════════ -->
 <div class="tab-content" id="tab-bulanan">
-    <form method="GET" action="{{ url_for('owner.laporan') }}" id="formBulanan">
-        <input type="hidden" name="laporan_tgl" value="{{ laporan_tgl }}">
-        <div class="laporan-filter">
-            <div class="lf-group">
-                <label class="lf-label"><i class="fas fa-calendar-alt"></i> Bulan</label>
-                <select name="laporan_bulan" class="lf-select">
-                    {% for i in range(1, 13) %}
-                    <option value="{{ i }}" {% if i == laporan_bulan %}selected{% endif %}>
-                        {{ ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][i-1] }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="lf-group">
-                <label class="lf-label"><i class="fas fa-calendar"></i> Tahun</label>
-                <select name="laporan_tahun" class="lf-select">
-                    {% for y in range(2024, 2028) %}
-                    <option value="{{ y }}" {% if y == laporan_tahun %}selected{% endif %}>{{ y }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn-apply"><i class="fas fa-search"></i> Lihat Laporan</button>
-            <a href="{{ url_for('owner.export_laporan', tipe='bulanan') }}" class="btn-apply" style="background: linear-gradient(135deg, #10B981, #047857); text-decoration: none; display: flex; align-items: center; gap: 0.4rem;"><i class="fas fa-file-excel"></i> Export Excel</a>
-        </div>
-    </form>
-
-    <!-- Summary Cards Bulanan -->
-    <div class="summary-row">
-        <div class="sum-card">
-            <div class="sum-icon si-brown"><i class="fas fa-coins"></i></div>
-            <div class="sum-info">
-                <span class="sum-label">Pendapatan Bulan Ini</span>
-                <span class="sum-val">Rp {{ "{:,.0f}".format(pendapatan_bulanan).replace(',', '.') }}</span>
-            </div>
-        </div>
-        <div class="sum-card">
-            <div class="sum-icon si-blue"><i class="fas fa-receipt"></i></div>
-            <div class="sum-info">
-                <span class="sum-label">Total Transaksi</span>
-                <span class="sum-val">{{ total_tx_bulanan }}</span>
-            </div>
-        </div>
-        <div class="sum-card">
-            <div class="sum-icon si-green"><i class="fas fa-chart-line"></i></div>
-            <div class="sum-info">
-                <span class="sum-label">Rata-rata/Hari</span>
-                <span class="sum-val">Rp {{ "{:,.0f}".format(pendapatan_bulanan / 30).replace(',', '.') if pendapatan_bulanan > 0 else '0' }}</span>
-            </div>
-        </div>
+  <form method="GET" action="{{ url_for('owner.laporan') }}" id="formBulanan">
+    <input type="hidden" name="laporan_tgl" value="{{ laporan_tgl }}" />
+    <div class="laporan-filter">
+      <div class="lf-group">
+        <label class="lf-label"
+          ><i class="fas fa-calendar-alt"></i> Bulan</label
+        >
+        <select name="laporan_bulan" class="lf-select">
+          {% for i in range(1, 13) %}
+          <option
+            value="{{ i }}"
+            {%
+            if
+            i=""
+            ="laporan_bulan"
+            %}selected{%
+            endif
+            %}
+          >
+            {{
+            ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][i-1]
+            }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="lf-group">
+        <label class="lf-label"><i class="fas fa-calendar"></i> Tahun</label>
+        <select name="laporan_tahun" class="lf-select">
+          {% for y in range(2024, 2028) %}
+          <option
+            value="{{ y }}"
+            {%
+            if
+            y=""
+            ="laporan_tahun"
+            %}selected{%
+            endif
+            %}
+          >
+            {{ y }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn-apply">
+        <i class="fas fa-search"></i> Lihat Laporan
+      </button>
+      <a
+        href="{{ url_for('owner.export_laporan', tipe='bulanan') }}"
+        class="btn-apply"
+        style="
+          background: linear-gradient(135deg, #10b981, #047857);
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        "
+        ><i class="fas fa-file-excel"></i> Export Excel</a
+      >
     </div>
+  </form>
 
-    <!-- Grafik Bulanan Dihapus -->
-
-    <!-- Tabel Laporan Transaksi Bulan -->
-    <div class="lap-card" style="margin-top: 2rem;">
-        <div class="lap-card-title"><i class="fas fa-table" style="color:var(--color-primary);margin-right:0.5rem;"></i> Laporan Transaksi Bulan</div>
-        <table class="tx-table" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th style="padding-bottom:1rem; color:#555; text-transform:none; font-size:0.9rem; text-align:left;">Tanggal</th>
-                    <th style="padding-bottom:1rem; color:#555; text-transform:none; font-size:0.9rem; text-align:center;">Jumlah Transaksi</th>
-                    <th style="padding-bottom:1rem; color:#555; text-transform:none; font-size:0.9rem; text-align:right;">Pendapatan</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for my, info in laporan_transaksi_bulan %}
-                <tr>
-                    <td style="padding:1rem 0; font-weight:600; color:#444; text-align:left;">{{ my }}</td>
-                    <td style="padding:1rem 0; color:#555; text-align:center;">{{ info.count }}</td>
-                    <td style="padding:1rem 0; color:#444; text-align:right;">Rp {{ "{:,.2f}".format(info.revenue).replace(',', '_').replace('.', ',').replace('_', '.') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+  <!-- Summary Cards Bulanan -->
+  <div class="summary-row">
+    <div class="sum-card">
+      <div class="sum-icon si-brown"><i class="fas fa-coins"></i></div>
+      <div class="sum-info">
+        <span class="sum-label">Pendapatan Bulan Ini</span>
+        <span class="sum-val"
+          >Rp {{ "{:,.0f}".format(pendapatan_bulanan).replace(',', '.') }}</span
+        >
+      </div>
     </div>
+    <div class="sum-card">
+      <div class="sum-icon si-blue"><i class="fas fa-receipt"></i></div>
+      <div class="sum-info">
+        <span class="sum-label">Total Transaksi</span>
+        <span class="sum-val">{{ total_tx_bulanan }}</span>
+      </div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon si-green"><i class="fas fa-chart-line"></i></div>
+      <div class="sum-info">
+        <span class="sum-label">Rata-rata/Hari</span>
+        <span class="sum-val"
+          >Rp {{ "{:,.0f}".format(pendapatan_bulanan / 30).replace(',', '.') if
+          pendapatan_bulanan > 0 else '0' }}</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Grafik Bulanan Dihapus -->
+
+  <!-- Tabel Laporan Transaksi Bulan -->
+  <div class="lap-card" style="margin-top: 2rem">
+    <div class="lap-card-title">
+      <i
+        class="fas fa-table"
+        style="color: var(--color-primary); margin-right: 0.5rem"
+      ></i>
+      Laporan Transaksi Bulan
+    </div>
+    <table class="tx-table" style="width: 100%">
+      <thead>
+        <tr>
+          <th
+            style="
+              padding-bottom: 1rem;
+              color: #555;
+              text-transform: none;
+              font-size: 0.9rem;
+              text-align: left;
+            "
+          >
+            Tanggal
+          </th>
+          <th
+            style="
+              padding-bottom: 1rem;
+              color: #555;
+              text-transform: none;
+              font-size: 0.9rem;
+              text-align: center;
+            "
+          >
+            Jumlah Transaksi
+          </th>
+          <th
+            style="
+              padding-bottom: 1rem;
+              color: #555;
+              text-transform: none;
+              font-size: 0.9rem;
+              text-align: right;
+            "
+          >
+            Pendapatan
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for my, info in laporan_transaksi_bulan %}
+        <tr>
+          <td
+            style="
+              padding: 1rem 0;
+              font-weight: 600;
+              color: #444;
+              text-align: left;
+            "
+          >
+            {{ my }}
+          </td>
+          <td style="padding: 1rem 0; color: #555; text-align: center">
+            {{ info.count }}
+          </td>
+          <td style="padding: 1rem 0; color: #444; text-align: right">
+            Rp {{ "{:,.2f}".format(info.revenue).replace(',', '_').replace('.',
+            ',').replace('_', '.') }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-// Tab switching
-function switchTab(name, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    btn.classList.add('active');
-}
+  // Tab switching
+  function switchTab(name, btn) {
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((t) => t.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    btn.classList.add("active");
+  }
 </script>
 {% endblock %}
