@@ -298,6 +298,8 @@ endblock %} {% block extra_css %}
         id="nomor_meja"
         name="nomor_meja"
         placeholder="Contoh: Meja 12 / Takeaway"
+        pattern="^(?!0).*$"
+        title="Nomor meja tidak boleh diawali dengan angka 0"
         required
       />
 

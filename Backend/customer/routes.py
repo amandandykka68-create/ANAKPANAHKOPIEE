@@ -123,9 +123,13 @@ def checkout():
     nama_pembeli = request.form.get('nama_pembeli')
     no_hp_pembeli = request.form.get('no_hp_pembeli', '-')
     email_pembeli = request.form.get('email_pembeli', f'{no_hp_pembeli}@anakpanah.local')
-    nomor_meja = request.form.get('nomor_meja')
+    nomor_meja = request.form.get('nomor_meja', '').strip()
     metode_bayar = request.form.get('metode_bayar')
     
+    if nomor_meja.startswith('0'):
+        flash('Nomor meja tidak valid (tidak boleh diawali angka 0).', 'error')
+        return redirect(url_for('customer.view_cart'))
+        
     total_harga = sum(d.subtotal for d in details)
     
     kode_pembayaran = None
