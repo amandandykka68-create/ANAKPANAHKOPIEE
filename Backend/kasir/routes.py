@@ -13,20 +13,29 @@ def check_kasir():
 def dashboard():
     if not check_kasir(): return redirect(url_for('auth.login'))
     
+    menus = Menu.query.all()
+    menu_dict = {m.id_menu: m for m in menus}
+    
     # Pesanan Menunggu Pembayaran & Diproses
     transaksi_menunggu = Transaksi.query.filter_by(status_pesanan='Menunggu Pembayaran').all()
     transaksi_diproses = Transaksi.query.filter_by(status_pesanan='Diproses').all()
     
-    # Inject details into each transaksi
+    # Preload details untuk transaksi aktif
+    tx_ids = [t.id_transaksi for t in transaksi_menunggu + transaksi_diproses]
+    all_details = DetailTransaksi.query.filter(DetailTransaksi.id_transaksi.in_(tx_ids)).all() if tx_ids else []
+    
+    details_by_tx = {}
+    for d in all_details:
+        if d.id_transaksi not in details_by_tx:
+            details_by_tx[d.id_transaksi] = []
+        d.menu = menu_dict.get(d.id_menu)
+        details_by_tx[d.id_transaksi].append(d)
+        
     for t in transaksi_menunggu:
-        t.details = DetailTransaksi.query.filter_by(id_transaksi=t.id_transaksi).all()
-        for d in t.details:
-            d.menu = Menu.query.get(d.id_menu)
+        t.details = details_by_tx.get(t.id_transaksi, [])
             
     for t in transaksi_diproses:
-        t.details = DetailTransaksi.query.filter_by(id_transaksi=t.id_transaksi).all()
-        for d in t.details:
-            d.menu = Menu.query.get(d.id_menu)
+        t.details = details_by_tx.get(t.id_transaksi, [])
             
     # Calculate stats for today
     today = date.today()

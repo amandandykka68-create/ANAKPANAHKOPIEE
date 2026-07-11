@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Load environment variables from .env file
 load_dotenv()
@@ -7,6 +8,9 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
     DEBUG = os.getenv('DEBUG', 'True') == 'True'
+    
+    # Session lifetime agar tidak cepat logout
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
     
     # SQLAlchemy configuration
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')

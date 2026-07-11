@@ -15,6 +15,7 @@ def login():
             user = User.query.filter_by(nama=username).first()
             
             if user and check_password_hash(user.password, password):
+                session.permanent = True
                 session['user_id'] = user.id_user
                 session['user_name'] = user.nama
                 session['user_role'] = user.role

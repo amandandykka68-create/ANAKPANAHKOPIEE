@@ -155,6 +155,9 @@ def laporan():
 
     today = date.today()
 
+    menus = Menu.query.all()
+    menu_dict = {m.id_menu: m for m in menus}
+
     # ── Harian ──
     laporan_tgl_str = request.args.get('laporan_tgl', today.isoformat())
     try:
@@ -168,17 +171,28 @@ def laporan():
 
     pendapatan_harian = sum(t.total_harga for t in tx_harian if t.status_pesanan == 'Selesai')
 
+    # Preload details untuk tabel harian dan breakdown menu
+    tx_ids = [t.id_transaksi for t in tx_harian]
+    all_details = DetailTransaksi.query.filter(DetailTransaksi.id_transaksi.in_(tx_ids)).all() if tx_ids else []
+    
+    details_by_tx = {}
+    for d in all_details:
+        if d.id_transaksi not in details_by_tx:
+            details_by_tx[d.id_transaksi] = []
+        d._menu = menu_dict.get(d.id_menu)
+        details_by_tx[d.id_transaksi].append(d)
+
     # Breakdown menu harian
     menu_counts_harian = {}
     for t in tx_harian:
-        details = DetailTransaksi.query.filter_by(id_transaksi=t.id_transaksi).all()
-        for d in details:
-            m = Menu.query.get(d.id_menu)
-            nama = m.nama_menu if m else 'Unknown'
+        t._details = details_by_tx.get(t.id_transaksi, [])
+        for d in t._details:
+            nama = d._menu.nama_menu if d._menu else 'Unknown'
             if nama not in menu_counts_harian:
                 menu_counts_harian[nama] = {'qty': 0, 'revenue': 0}
             menu_counts_harian[nama]['qty']     += d.jumlah
             menu_counts_harian[nama]['revenue'] += d.subtotal
+            
     top_menu_harian = sorted(menu_counts_harian.items(), key=lambda x: x[1]['qty'], reverse=True)[:5]
 
     # ── Bulanan ──
@@ -208,14 +222,8 @@ def laporan():
         chart_labels_b.append(str(day))
         chart_data_b.append(rev)
 
-    # Preload details untuk tabel harian
-    for t in tx_harian:
-        t._details = DetailTransaksi.query.filter_by(id_transaksi=t.id_transaksi).all()
-        for d in t._details:
-            d._menu = Menu.query.get(d.id_menu)
-
     # All-time Monthly Aggregate for Table
-    tx_all_selesai = Transaksi.query.filter_by(status_pesanan='Selesai').all()
+    tx_all_selesai = Transaksi.query.filter_by(status_pesanan='Selesai').with_entities(Transaksi.tanggal_transaksi, Transaksi.total_harga).all()
     monthly_aggregates = {}
     for t in tx_all_selesai:
         my = t.tanggal_transaksi.strftime('%m-%Y')
