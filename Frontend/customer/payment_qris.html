@@ -32,7 +32,7 @@
     
     {% if transaksi.status_pesanan != 'Menunggu Pembayaran' %}
     <a href="{{ url_for('customer.struk', id_transaksi=transaksi.id_transaksi) }}" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Lihat Struk Pembayaran</a>
-    {% endif %}
     <a href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}" class="btn btn-outline" style="width: 100%;">Cek Status Pesanan</a>
+    {% endif %}
 </div>
 {% endblock %}
