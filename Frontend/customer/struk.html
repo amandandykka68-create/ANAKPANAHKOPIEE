@@ -170,11 +170,8 @@
 </div>
 
 <div class="action-buttons">
-    <button class="btn-action btn-print" onclick="window.print()">
-        <i class="fas fa-print"></i> Cetak Struk
-    </button>
-    <a href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}" class="btn-action btn-lacak">
-        <i class="fas fa-map-marker-alt"></i> Lacak Pesanan
+    <a href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}" class="btn-action btn-lacak" style="width: 100%;">
+        <i class="fas fa-clipboard-list"></i> Lacak Pesanan
     </a>
 </div>
 {% endblock %}
