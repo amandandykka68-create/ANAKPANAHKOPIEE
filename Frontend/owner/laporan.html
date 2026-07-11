@@ -448,16 +448,8 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
         >
         <select name="laporan_bulan" class="lf-select">
           {% for i in range(1, 13) %}
-          <option
-            value="{{ i }}"
-            {%
-            if
-            i=""
-            ="laporan_bulan"
-            %}selected{%
-            endif
-            %}
-          >
+          <option value="{{ i }}" {% if i == laporan_bulan %}selected{% endif %}>
+
             {{
             ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][i-1]
             }}
@@ -469,16 +461,8 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
         <label class="lf-label"><i class="fas fa-calendar"></i> Tahun</label>
         <select name="laporan_tahun" class="lf-select">
           {% for y in range(2024, 2028) %}
-          <option
-            value="{{ y }}"
-            {%
-            if
-            y=""
-            ="laporan_tahun"
-            %}selected{%
-            endif
-            %}
-          >
+          <option value="{{ y }}" {% if y == laporan_tahun %}selected{% endif %}>
+
             {{ y }}
           </option>
           {% endfor %}
