@@ -6,8 +6,8 @@ from . import owner_bp
 from datetime import datetime, date, timedelta
 import calendar
 
-import csv
-from io import StringIO
+import openpyxl
+from io import BytesIO
 from flask import Response
 
 def check_owner():
@@ -253,65 +253,68 @@ def laporan():
 def export_laporan():
     if not check_owner(): return redirect(url_for('auth.login'))
     
-    tipe = request.args.get('tipe', 'harian')
-    si = StringIO()
-    cw = csv.writer(si)
-
-    if tipe == 'harian':
-        tgl_str = request.args.get('tgl', date.today().isoformat())
-        try:
-            tgl = datetime.strptime(tgl_str, '%Y-%m-%d').date()
-        except ValueError:
-            tgl = date.today()
-            
-        tx_harian = Transaksi.query.filter(
-            db.func.date(Transaksi.tanggal_transaksi) == tgl
-        ).order_by(Transaksi.tanggal_transaksi.desc()).all()
+    wb = openpyxl.Workbook()
+    
+    # ── SHEET 1: HARIAN ──
+    ws_harian = wb.active
+    ws_harian.title = "Laporan Harian"
+    
+    tgl_str = request.args.get('laporan_tgl', date.today().isoformat())
+    try:
+        tgl = datetime.strptime(tgl_str, '%Y-%m-%d').date()
+    except ValueError:
+        tgl = date.today()
         
-        cw.writerow(['Laporan Harian', tgl_str])
-        cw.writerow(['ID Transaksi', 'Waktu', 'Pembeli', 'Total Harga', 'Metode Bayar', 'Status'])
+    tx_harian = Transaksi.query.filter(
+        db.func.date(Transaksi.tanggal_transaksi) == tgl
+    ).order_by(Transaksi.tanggal_transaksi.desc()).all()
+    
+    ws_harian.append(['Laporan Harian', tgl_str])
+    ws_harian.append([])
+    ws_harian.append(['ID Transaksi', 'Waktu', 'Pembeli', 'Total Harga', 'Metode Bayar', 'Status'])
+    
+    for t in tx_harian:
+        ws_harian.append([
+            f"ORD-{t.id_transaksi}",
+            t.tanggal_transaksi.strftime('%H:%M:%S'),
+            t.nama_pembeli,
+            t.total_harga,
+            t.metode_bayar,
+            t.status_pesanan
+        ])
         
-        for t in tx_harian:
-            cw.writerow([
-                f"ORD-{t.id_transaksi}",
-                t.tanggal_transaksi.strftime('%H:%M:%S'),
-                t.nama_pembeli,
-                t.total_harga,
-                t.metode_bayar,
-                t.status_pesanan
-            ])
-        filename = f"Laporan_Harian_{tgl_str}.csv"
+    # ── SHEET 2: BULANAN ──
+    ws_bulanan = wb.create_sheet(title="Laporan Bulanan")
+    
+    tx_all_selesai = Transaksi.query.filter_by(status_pesanan='Selesai').with_entities(Transaksi.tanggal_transaksi, Transaksi.total_harga).all()
+    monthly_aggregates = {}
+    for t in tx_all_selesai:
+        my = t.tanggal_transaksi.strftime('%m-%Y')
+        if my not in monthly_aggregates:
+            monthly_aggregates[my] = {'count': 0, 'revenue': 0, 'sort_key': t.tanggal_transaksi.strftime('%Y-%m')}
+        monthly_aggregates[my]['count'] += 1
+        monthly_aggregates[my]['revenue'] += t.total_harga
+    
+    laporan_transaksi_bulan = sorted(monthly_aggregates.items(), key=lambda x: x[1]['sort_key'], reverse=True)
+    
+    ws_bulanan.append(['Laporan Transaksi Bulanan'])
+    ws_bulanan.append([])
+    ws_bulanan.append(['Bulan', 'Jumlah Transaksi Selesai', 'Pendapatan (Rp)'])
+    
+    for my, info in laporan_transaksi_bulan:
+        ws_bulanan.append([
+            my,
+            info['count'],
+            info['revenue']
+        ])
         
-    elif tipe == 'bulanan':
-        # All-time Monthly Aggregate for Table
-        tx_all_selesai = Transaksi.query.filter_by(status_pesanan='Selesai').all()
-        monthly_aggregates = {}
-        for t in tx_all_selesai:
-            my = t.tanggal_transaksi.strftime('%m-%Y')
-            if my not in monthly_aggregates:
-                monthly_aggregates[my] = {'count': 0, 'revenue': 0, 'sort_key': t.tanggal_transaksi.strftime('%Y-%m')}
-            monthly_aggregates[my]['count'] += 1
-            monthly_aggregates[my]['revenue'] += t.total_harga
-        
-        laporan_transaksi_bulan = sorted(monthly_aggregates.items(), key=lambda x: x[1]['sort_key'], reverse=True)
-        
-        cw.writerow(['Laporan Transaksi Bulanan'])
-        cw.writerow(['Bulan', 'Jumlah Transaksi Selesai', 'Pendapatan'])
-        
-        for my, info in laporan_transaksi_bulan:
-            cw.writerow([
-                my,
-                info['count'],
-                info['revenue']
-            ])
-        filename = "Laporan_Bulanan.csv"
-        
-    else:
-        return redirect(url_for('owner.laporan'))
-
-    output = si.getvalue()
+    # Output ke BytesIO
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
     return Response(
         output,
-        mimetype="text/csv",
-        headers={"Content-Disposition": f"attachment;filename={filename}"}
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment;filename=Laporan_APK_{tgl_str}.xlsx"}
     )

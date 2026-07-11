@@ -274,14 +274,33 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
   >
 </li>
 {% endblock %} {% block content %}
-<!-- Tab Bar -->
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('harian', this)">
-    <i class="fas fa-calendar-day"></i> Harian
-  </button>
-  <button class="tab-btn" onclick="switchTab('bulanan', this)">
-    <i class="fas fa-calendar-alt"></i> Bulanan
-  </button>
+<!-- Top Bar dengan Tab dan Export -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <!-- Tab Bar -->
+  <div class="tab-bar" style="margin-bottom: 0;">
+    <button class="tab-btn active" onclick="switchTab('harian', this)">
+      <i class="fas fa-calendar-day"></i> Harian
+    </button>
+    <button class="tab-btn" onclick="switchTab('bulanan', this)">
+      <i class="fas fa-calendar-alt"></i> Bulanan
+    </button>
+  </div>
+
+  <a
+    href="{{ url_for('owner.export_laporan') }}?laporan_tgl={{ laporan_tgl }}"
+    class="btn-apply"
+    style="
+      background: linear-gradient(135deg, #10b981, #047857);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    "
+    title="Download Laporan Harian dan Bulanan (1 File Excel)"
+  >
+    <i class="fas fa-file-excel"></i> Export Excel Laporan Lengkap
+  </a>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -306,18 +325,6 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
       <button type="submit" class="btn-apply">
         <i class="fas fa-search"></i> Lihat Laporan
       </button>
-      <a
-        href="{{ url_for('owner.export_laporan', tipe='harian', tgl=laporan_tgl) }}"
-        class="btn-apply"
-        style="
-          background: linear-gradient(135deg, #10b981, #047857);
-          text-decoration: none;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        "
-        ><i class="fas fa-file-excel"></i> Export Excel</a
-      >
     </div>
   </form>
 
@@ -471,18 +478,6 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
       <button type="submit" class="btn-apply">
         <i class="fas fa-search"></i> Lihat Laporan
       </button>
-      <a
-        href="{{ url_for('owner.export_laporan', tipe='bulanan') }}"
-        class="btn-apply"
-        style="
-          background: linear-gradient(135deg, #10b981, #047857);
-          text-decoration: none;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        "
-        ><i class="fas fa-file-excel"></i> Export Excel</a
-      >
     </div>
   </form>
 
