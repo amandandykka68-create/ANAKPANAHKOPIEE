@@ -121,11 +121,28 @@ def send_whatsapp_message(target, message):
     if not token:
         print("Peringatan: FONNTE_TOKEN tidak ditemukan di .env")
         return False
+    
+    # Bersihkan nomor HP: hapus spasi, strip, dan tanda hubung
+    clean_target = target.strip().replace(' ', '').replace('-', '')
+    
+    # Normalisasi awalan nomor HP Indonesia
+    # Jika diawali +62, hapus +62 (Fonnte countryCode sudah handle)
+    # Jika diawali 62 (tanpa +), hapus 62
+    # Jika diawali 0, hapus 0
+    # Sehingga yang dikirim ke Fonnte hanya angka tanpa prefix (misal: 8123456789)
+    if clean_target.startswith('+62'):
+        clean_target = clean_target[3:]
+    elif clean_target.startswith('62') and len(clean_target) > 10:
+        clean_target = clean_target[2:]
+    elif clean_target.startswith('0'):
+        clean_target = clean_target[1:]
+    
+    print(f"[WA DEBUG] Nomor asli: '{target}' -> Nomor bersih: '{clean_target}'")
         
     url = "https://api.fonnte.com/send"
     
     payload = {
-        'target': target,
+        'target': clean_target,
         'message': message,
         'countryCode': '62' # Default to Indonesia
     }
@@ -136,11 +153,18 @@ def send_whatsapp_message(target, message):
     
     try:
         response = requests.post(url, data=payload, headers=headers)
+        result = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+        print(f"[WA DEBUG] Status: {response.status_code}, Response: {result}")
+        
         if response.status_code == 200:
+            # Cek apakah Fonnte mengembalikan status sukses di JSON body
+            if isinstance(result, dict) and result.get('status') == False:
+                print(f"[WA DEBUG] Fonnte menolak: {result.get('reason', 'unknown')}")
+                return False
             print("Pesan WhatsApp berhasil dikirim!")
             return True
         else:
-            print(f"Gagal mengirim WhatsApp. Kode: {response.status_code}, Respon: {response.text}")
+            print(f"Gagal mengirim WhatsApp. Kode: {response.status_code}, Respon: {result}")
             return False
     except Exception as e:
         print(f"Error saat menghubungi Fonnte API: {e}")
