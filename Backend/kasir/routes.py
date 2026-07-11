@@ -56,8 +56,11 @@ def konfirmasi_tunai():
         transaksi.status_pesanan = 'Diproses'
         transaksi.id_kasir = session.get('user_id')
         db.session.commit()
-        proses_kirim_nota(transaksi)
-        flash('Pembayaran Tunai berhasil dikonfirmasi. Pesanan mulai diproses & Struk WA otomatis terkirim.', 'success')
+        wa_ok, wa_reason = proses_kirim_nota(transaksi)
+        if wa_ok:
+            flash('Pembayaran Tunai berhasil dikonfirmasi. Pesanan mulai diproses & Struk WA otomatis terkirim.', 'success')
+        else:
+            flash(f'Pembayaran dikonfirmasi. Tapi WA gagal: {wa_reason}', 'warning')
     else:
         flash('Kode pembayaran tidak valid atau pesanan sudah diproses.', 'error')
         
@@ -72,8 +75,11 @@ def konfirmasi_qris(id_transaksi):
         transaksi.status_pesanan = 'Diproses'
         transaksi.id_kasir = session.get('user_id')
         db.session.commit()
-        proses_kirim_nota(transaksi)
-        flash('Pembayaran QRIS berhasil dikonfirmasi. Pesanan mulai diproses & Struk WA otomatis terkirim.', 'success')
+        wa_ok, wa_reason = proses_kirim_nota(transaksi)
+        if wa_ok:
+            flash('Pembayaran QRIS berhasil dikonfirmasi. Pesanan mulai diproses & Struk WA otomatis terkirim.', 'success')
+        else:
+            flash(f'Pembayaran dikonfirmasi. Tapi WA gagal: {wa_reason}', 'warning')
     
     return redirect(url_for('kasir.dashboard'))
 
@@ -89,9 +95,13 @@ def selesaikan_pesanan(id_transaksi):
         # Kirim notifikasi WA jika nomor valid (minimal 10 digit angka)
         if transaksi.no_hp_pembeli and len(transaksi.no_hp_pembeli) >= 10:
             pesan = f"Halo {transaksi.nama_pembeli}!\n\nPesanan Anda (Meja {transaksi.nomor_meja}) di Anak Panah Kopi sudah SIAP SAJI.\nSilakan ambil pesanan Anda di kasir atau tunggu pramusaji kami mengantarkannya.\n\nTerima kasih!"
-            send_whatsapp_message(transaksi.no_hp_pembeli, pesan)
-            
-        flash('Pesanan selesai diproses & siap saji (Notifikasi WA dikirim)!', 'success')
+            wa_ok, wa_reason = send_whatsapp_message(transaksi.no_hp_pembeli, pesan)
+            if wa_ok:
+                flash('Pesanan selesai & notifikasi WA terkirim!', 'success')
+            else:
+                flash(f'Pesanan selesai, tapi notif WA gagal: {wa_reason}', 'warning')
+        else:
+            flash('Pesanan selesai diproses & siap saji!', 'success')
             
     return redirect(url_for('kasir.dashboard'))
 
@@ -111,8 +121,11 @@ def toggle_menu(id_menu):
     return redirect(url_for('kasir.kelola_menu_cepat'))
 
 def proses_kirim_nota(transaksi):
+    """
+    Returns: tuple (success: bool, reason: str)
+    """
     if not transaksi.no_hp_pembeli or len(transaksi.no_hp_pembeli) < 10:
-        return False
+        return False, f"Nomor HP pembeli kosong atau terlalu pendek: '{transaksi.no_hp_pembeli}'"
         
     tanggal_str = transaksi.tanggal_transaksi.strftime('%d %B %Y')
     format_id = f"{transaksi.id_transaksi:03d}"
@@ -155,9 +168,10 @@ def kirim_nota_wa(id_transaksi):
     if not check_kasir(): return redirect(url_for('auth.login'))
     transaksi = Transaksi.query.get_or_404(id_transaksi)
     
-    if proses_kirim_nota(transaksi):
+    wa_ok, wa_reason = proses_kirim_nota(transaksi)
+    if wa_ok:
         flash('Nota berhasil dikirim ulang via WhatsApp (Fonnte)!', 'success')
     else:
-        flash('Gagal mengirim Nota WA. Cek token Fonnte atau nomor tujuan.', 'error')
+        flash(f'Gagal kirim WA: {wa_reason}', 'error')
         
     return redirect(url_for('kasir.dashboard'))

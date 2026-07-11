@@ -1,0 +1,9 @@
+{
+  "[html]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": false
+  },
+  "files.associations": {
+    "*.html": "jinja-html"
+  }
+}

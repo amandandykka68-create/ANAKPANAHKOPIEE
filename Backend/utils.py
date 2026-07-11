@@ -116,20 +116,20 @@ def send_invoice_email(to_email, transaksi, detail_transaksi):
 def send_whatsapp_message(target, message):
     """
     Mengirimkan pesan WhatsApp menggunakan Fonnte API.
+    Returns: tuple (success: bool, reason: str)
     """
     token = os.getenv('FONNTE_TOKEN')
     if not token:
-        print("Peringatan: FONNTE_TOKEN tidak ditemukan di .env")
-        return False
+        print("Peringatan: FONNTE_TOKEN tidak ditemukan di environment")
+        return False, "FONNTE_TOKEN tidak ditemukan di Environment Variables Vercel. Tambahkan di Vercel Settings > Environment Variables."
+    
+    if not target or len(target.strip()) < 5:
+        return False, f"Nomor HP pembeli kosong atau tidak valid: '{target}'"
     
     # Bersihkan nomor HP: hapus spasi, strip, dan tanda hubung
     clean_target = target.strip().replace(' ', '').replace('-', '')
     
     # Normalisasi awalan nomor HP Indonesia
-    # Jika diawali +62, hapus +62 (Fonnte countryCode sudah handle)
-    # Jika diawali 62 (tanpa +), hapus 62
-    # Jika diawali 0, hapus 0
-    # Sehingga yang dikirim ke Fonnte hanya angka tanpa prefix (misal: 8123456789)
     if clean_target.startswith('+62'):
         clean_target = clean_target[3:]
     elif clean_target.startswith('62') and len(clean_target) > 10:
@@ -138,13 +138,14 @@ def send_whatsapp_message(target, message):
         clean_target = clean_target[1:]
     
     print(f"[WA DEBUG] Nomor asli: '{target}' -> Nomor bersih: '{clean_target}'")
+    print(f"[WA DEBUG] Token (4 char pertama): '{token[:4]}...'")
         
     url = "https://api.fonnte.com/send"
     
     payload = {
         'target': clean_target,
         'message': message,
-        'countryCode': '62' # Default to Indonesia
+        'countryCode': '62'
     }
     
     headers = {
@@ -152,20 +153,24 @@ def send_whatsapp_message(target, message):
     }
     
     try:
-        response = requests.post(url, data=payload, headers=headers)
+        response = requests.post(url, data=payload, headers=headers, timeout=15)
         result = response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
         print(f"[WA DEBUG] Status: {response.status_code}, Response: {result}")
         
         if response.status_code == 200:
-            # Cek apakah Fonnte mengembalikan status sukses di JSON body
             if isinstance(result, dict) and result.get('status') == False:
-                print(f"[WA DEBUG] Fonnte menolak: {result.get('reason', 'unknown')}")
-                return False
+                reason = result.get('reason', result.get('detail', 'Ditolak oleh Fonnte'))
+                print(f"[WA DEBUG] Fonnte menolak: {reason}")
+                return False, f"Fonnte menolak: {reason}"
             print("Pesan WhatsApp berhasil dikirim!")
-            return True
+            return True, "Berhasil"
         else:
-            print(f"Gagal mengirim WhatsApp. Kode: {response.status_code}, Respon: {result}")
-            return False
+            detail = result if isinstance(result, str) else str(result)
+            print(f"Gagal mengirim WhatsApp. Kode: {response.status_code}, Respon: {detail}")
+            return False, f"Fonnte API error (HTTP {response.status_code}): {detail[:200]}"
+    except requests.exceptions.Timeout:
+        print("Error: Fonnte API timeout")
+        return False, "Fonnte API timeout - server tidak merespon dalam 15 detik"
     except Exception as e:
         print(f"Error saat menghubungi Fonnte API: {e}")
-        return False
+        return False, f"Error koneksi ke Fonnte: {str(e)[:200]}"
