@@ -9,6 +9,12 @@ def check_kasir():
         return False
     return True
 
+@kasir_bp.route('/debug_token')
+def debug_token():
+    import os
+    token = os.getenv('FONNTE_TOKEN', 'TIDAK_ADA')
+    return f"Token di Vercel (4 huruf pertama): {token[:4]}..."
+
 @kasir_bp.route('/')
 def dashboard():
     if not check_kasir(): return redirect(url_for('auth.login'))
