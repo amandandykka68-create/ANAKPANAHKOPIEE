@@ -161,7 +161,7 @@ def send_whatsapp_message(target, message):
             if isinstance(result, dict) and result.get('status') == False:
                 reason = result.get('reason', result.get('detail', 'Ditolak oleh Fonnte'))
                 print(f"[WA DEBUG] Fonnte menolak: {reason}")
-                return False, f"Fonnte menolak: {reason}"
+                return False, f"Fonnte menolak: {reason} (Token di server: {token[:4]}...)"
             print("Pesan WhatsApp berhasil dikirim!")
             return True, "Berhasil"
         else:
