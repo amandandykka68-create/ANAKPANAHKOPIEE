@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Pembayaran - Anak Panah Kopi{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<header class="customer-header">
+    <div style="display: flex; align-items: center;">
+        <h2 style="margin: 0; color: var(--color-primary-dark);"><i class="fas fa-coffee"></i> Anak Panah Kopi</h2>
+    </div>
+</header>
+
+<div class="content-wrapper" style="max-width: 600px; margin: 0 auto; padding-top: 2rem;">
+    <div class="table-container text-center" style="padding: 3rem;">
+        <h2 style="color: var(--color-primary-dark); margin-bottom: 0.5rem;">Pembayaran QRIS</h2>
+        <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">Silakan scan QR Code di bawah ini untuk menyelesaikan pembayaran Transaksi #{{ transaksi.id_transaksi }}.</p>
+        
+        <div style="background-color: white; padding: 2rem; border-radius: var(--border-radius-lg); display: inline-block; box-shadow: var(--shadow-md); margin-bottom: 2rem;">
+            {% if qr_image %}
+                <img src="{{ qr_image }}" alt="QRIS Code" style="width: 250px; height: 250px;">
+            {% else %}
+                <div style="width: 250px; height: 250px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <p>Gagal memuat QR</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Total: Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</h3>
+        <p style="margin-bottom: 2rem;">Tunjukkan layar ini kepada Kasir setelah melakukan pembayaran.</p>
+        
+        <a href="{{ url_for('customer.menu') }}" class="btn btn-outline btn-block">Kembali ke Beranda</a>
+    </div>
+</div>
+{% endblock %}

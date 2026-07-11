@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Anak Panah Kopi{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevent scrolling on landing page */
+    }
+
+    /* Hero Styles */
+    .hero-container {
+        height: 100vh;
+        width: 100vw;
+        background-color: #1E140F; /* Fallback color */
+        background-image: linear-gradient(rgba(30, 20, 15, 0.4), rgba(30, 20, 15, 0.7)), url("{{ url_for('static', filename='assets/images/user_bg_final2.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+
+    .hero-content {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 4rem 8rem;
+        height: 100%;
+        width: 100%;
+    }
+
+    .hero-box {
+        max-width: 650px;
+        text-align: left;
+    }
+
+    .hero-title {
+        font-family: 'Playfair Display', serif; /* Classic elegant serif */
+        font-size: 5rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        line-height: 1.1;
+        color: #ffffff;
+    }
+
+    .hero-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #E27D60; /* Warm orange accent */
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .hero-desc {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #dddddd;
+        margin-bottom: 3rem;
+        font-weight: 400;
+    }
+
+    .btn-hero-outline {
+        display: inline-block;
+        padding: 1rem 3rem;
+        font-size: 1rem;
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-hero-outline:hover {
+        background: white;
+        color: #1a1a1a;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-content {
+            padding: 2rem;
+            justify-content: center;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+        }
+    }
+</style>
+<!-- Add Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-content">
+        <div class="hero-box">
+            <div class="hero-subtitle">Locally Sourced • Roasted With Love</div>
+            <h1 class="hero-title">Anak Panah<br>Kopiee</h1>
+            <p class="hero-desc">
+                Welcome to our coffee sanctuary! Start your day right with an invigorating cup of black coffee. Order your favorite blend now and experience the artisan touch in every sip.
+            </p>
+            <a href="{{ url_for('customer.menu') }}" class="btn-hero-outline">View Menu</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

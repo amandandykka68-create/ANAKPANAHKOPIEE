@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Color Palette - Modern Coffee Shop (Brown) */
+    --color-primary: #8C5E35; /* Rich Brown */
+    --color-primary-dark: #5C3D22;
+    --color-secondary: #D9B48F; /* Cream/Latte */
+    --color-accent: #E6CFA1; /* Light Cream */
+    --color-background: #FDFBF7; /* Off-white / Creamy */
+    --color-surface: #FFFFFF;
+    --color-text-primary: #2C241B; /* Dark espresso brown/black */
+    --color-text-secondary: #6B5D50;
+    --color-danger: #D9534F;
+    --color-success: #5CB85C;
+
+    /* Shadows & Effects */
+    --shadow-sm: 0 2px 8px rgba(44, 36, 27, 0.05);
+    --shadow-md: 0 4px 16px rgba(44, 36, 27, 0.08);
+    --shadow-lg: 0 10px 30px rgba(44, 36, 27, 0.12);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.4);
+
+    /* Typography */
+    --font-family: 'Outfit', sans-serif;
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --border-radius-sm: 8px;
+    --border-radius-md: 16px;
+    --border-radius-lg: 24px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: var(--color-primary);
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-dark);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #E0D5C1;
+    border-radius: var(--border-radius-sm);
+    background-color: #FAFAFA;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    color: var(--color-text-primary);
+    transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(140, 94, 53, 0.15);
+    background-color: var(--color-surface);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* Authentication Layout */
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.auth-hero {
+    flex: 1;
+    background-image: linear-gradient(rgba(44, 36, 27, 0.5), rgba(44, 36, 27, 0.7)), url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.auth-hero h1 {
+    color: white;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.auth-hero p {
+    font-size: 1.2rem;
+    max-width: 400px;
+    opacity: 0.9;
+}
+
+.auth-form-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: var(--color-surface);
+}
+
+.auth-form-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    font-size: 2rem;
+    color: var(--color-primary-dark);
+}
+
+.auth-header p {
+    color: var(--color-text-secondary);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--color-text-secondary);
+}
+
+.auth-footer a {
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .auth-hero {
+        display: none; /* Sembunyikan gambar hero di mobile */
+    }
+    .auth-form-wrapper {
+        background-color: var(--color-background);
+    }
+    .auth-form-card {
+        background-color: var(--color-surface);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-md);
+    }
+}

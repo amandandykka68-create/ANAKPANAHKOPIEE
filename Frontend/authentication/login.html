@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Anak Panah Kopi{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <!-- Image Hero for Desktop -->
+    <div class="auth-hero">
+        <h1>Anak Panah Kopi</h1>
+        <p>Sistem Informasi Coffee Shop Modern</p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="auth-form-wrapper">
+        <div class="auth-form-card">
+            <div class="auth-header">
+                <h2>Selamat Datang</h2>
+                <p>Silakan masuk ke akun Anda</p>
+            </div>
+            
+            <form action="{{ url_for('auth.login') }}" method="POST" id="loginForm">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username Anda" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password Anda" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block mt-3" id="btnLogin">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i> Masuk
+                </button>
+            </form>
+            
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    // Basic frontend validation if needed
+    const btn = document.getElementById('btnLogin');
+    setLoadingState(btn, true);
+    // Let the form submit naturally to backend
+});
+</script>
+{% endblock %}

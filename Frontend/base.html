@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Anak Panah Kopi{% endblock %}</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    {% block content %}
+    <!-- Konten halaman akan dirender di sini -->
+    {% endblock %}
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+    
+    <!-- Flash Messages Handling for SweetAlert -->
+    <script>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    // Mengubah kategori flash Flask menjadi icon SweetAlert2
+                    let icon = '{{ category }}';
+                    if (icon === 'error' || icon === 'danger') icon = 'error';
+                    else if (icon === 'success') icon = 'success';
+                    else if (icon === 'warning') icon = 'warning';
+                    else icon = 'info';
+                    
+                    showAlert(icon, 'Pemberitahuan', '{{ message }}');
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

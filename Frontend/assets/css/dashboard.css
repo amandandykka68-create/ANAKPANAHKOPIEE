@@ -1,0 +1,312 @@
+/* Dashboard Layout CSS */
+.dashboard-body {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-background);
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #FCF6F0; /* Light Latte */
+    color: var(--color-text-primary);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #F0E6D8;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+    width: 0;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    text-align: left;
+    padding-left: 2rem;
+}
+
+.sidebar-header h3 {
+    color: var(--color-primary);
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.sidebar-nav {
+    flex: 1;
+    list-style: none;
+    padding: 1.5rem 0;
+    overflow-y: auto;
+}
+
+.sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    margin: 0.2rem 1rem;
+    border-radius: 8px;
+}
+
+.sidebar-nav li a i {
+    width: 24px;
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+.sidebar-nav li a:hover,
+.sidebar-nav li a.active {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.user-info i {
+    margin-right: 10px;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+.btn-logout {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    text-align: center;
+    background-color: var(--color-danger);
+    color: white;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+}
+
+.btn-logout:hover {
+    background-color: #c9302c;
+    color: white;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    transition: all 0.3s ease;
+    width: calc(100% - 250px);
+}
+
+.main-content.expanded {
+    width: 100%;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--color-surface);
+    border-bottom: 1px solid #F0E6D8;
+    z-index: 100;
+}
+
+.btn-toggle-sidebar {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    margin-right: 1.5rem;
+}
+
+.topbar-title h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--color-text-primary);
+}
+
+.content-wrapper {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Cards (Dashboard Stats) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: var(--color-surface);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-right: 1rem;
+}
+
+.icon-brown { background-color: rgba(140, 94, 53, 0.15); color: var(--color-primary); }
+.icon-cream { background-color: rgba(217, 180, 143, 0.2); color: var(--color-primary-dark); }
+.icon-green { background-color: rgba(92, 184, 92, 0.15); color: var(--color-success); }
+.icon-blue { background-color: rgba(37, 99, 235, 0.15); color: #2563EB; }
+.icon-orange { background-color: rgba(230, 138, 0, 0.15); color: #E68A00; }
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--color-text-primary);
+}
+
+.stat-info p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Data Tables */
+.table-container {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    overflow-x: auto;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.modern-table th, .modern-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.modern-table th {
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background-color: #FAFAFA;
+}
+
+.modern-table tbody tr:hover {
+    background-color: rgba(0,0,0,0.01);
+}
+
+.badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-success { background-color: rgba(92, 184, 92, 0.15); color: var(--color-success); }
+.badge-warning { background-color: rgba(240, 173, 78, 0.15); color: #f0ad4e; }
+.badge-danger { background-color: rgba(217, 83, 79, 0.15); color: var(--color-danger); }
+
+/* Customer UI Overrides */
+.customer-header {
+    background-color: var(--color-surface);
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.menu-card {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-fast);
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+}
+
+.menu-img {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.menu-details {
+    padding: 1.5rem;
+}
+
+.menu-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.menu-price {
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* POS UI Overrides for Kasir */
+.pos-layout {
+    display: flex;
+    gap: 2rem;
+    height: calc(100vh - 120px);
+}
+
+.pos-products {
+    flex: 2;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+.pos-cart {
+    flex: 1;
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Pembayaran Tunai - Anak Panah Kopi{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 4rem auto; text-align: center; background: white; padding: 3rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <i class="fas fa-money-bill-wave" style="font-size: 4rem; color: var(--color-primary); margin-bottom: 1rem;"></i>
+    <h2 style="color: var(--color-primary-dark); margin-bottom: 0.5rem;">Pembayaran Tunai</h2>
+    <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">Silakan menuju kasir untuk melakukan pembayaran.</p>
+    
+    <div style="background-color: var(--color-bg); padding: 2rem; border-radius: 10px; margin-bottom: 2rem;">
+        <p style="font-size: 1.1rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Total Tagihan</p>
+        <h3 style="font-size: 2rem; color: var(--color-primary-dark); margin-bottom: 1.5rem;">Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</h3>
+        
+        <p style="font-size: 1.1rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Kode Pembayaran Anda</p>
+        <div style="background-color: white; border: 2px dashed var(--color-primary); padding: 1rem; border-radius: 10px; font-size: 2.5rem; font-weight: bold; letter-spacing: 5px; color: var(--color-primary-dark);">
+            {{ transaksi.kode_pembayaran }}
+        </div>
+        <p style="font-size: 0.9rem; color: var(--color-danger); margin-top: 1rem;">*Tunjukkan kode ini kepada kasir kami</p>
+    </div>
+    
+    {% if transaksi.status_pesanan != 'Menunggu Pembayaran' %}
+    <a href="{{ url_for('customer.struk', id_transaksi=transaksi.id_transaksi) }}" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Lihat Struk Pembayaran</a>
+    {% endif %}
+    <a href="{{ url_for('customer.tracking', id_transaksi=transaksi.id_transaksi) }}" class="btn btn-outline" style="width: 100%;">Cek Status Pesanan</a>
+</div>
+{% endblock %}

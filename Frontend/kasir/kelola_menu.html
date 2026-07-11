@@ -1,0 +1,563 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Kelola Status Menu - Kasir{% endblock %}
+{% block page_title %}Kelola Status Menu{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Top Controls */
+    .menu-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .menu-filters {
+        display: flex;
+        gap: 1rem;
+    }
+    .search-input {
+        padding: 0.7rem 1.2rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        width: 280px;
+        outline: none;
+        background: white;
+        font-family: inherit;
+    }
+    .cat-select {
+        padding: 0.7rem 1.2rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        outline: none;
+        background: white;
+        font-family: inherit;
+        color: #555;
+    }
+
+    /* Menu Table Container */
+    .menu-table-container {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .menu-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .menu-table th {
+        background-color: rgba(140, 94, 53, 0.05);
+        color: #888;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    .menu-table td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+    
+    /* Item Column */
+    .td-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .td-item img {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+    .td-item-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .td-item-name {
+        font-weight: 700;
+        color: #222;
+        font-size: 1rem;
+        margin-bottom: 0.2rem;
+    }
+    .td-item-desc {
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+    /* Category Badge */
+    .cat-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .cat-makanan { background: #E5F0FF; color: #2563EB; }
+    .cat-minuman { background: #E5FFE5; color: #00A65A; }
+    .cat-cemilan { background: #FFF4E5; color: #E68A00; }
+    .cat-default { background: #F0F0F0; color: #555; }
+
+    /* Price */
+    .td-price {
+        font-weight: 800;
+        color: #222;
+    }
+
+    /* Custom Toggle Switch */
+    .status-toggle {
+        display: inline-block;
+        text-decoration: none;
+    }
+    .toggle-track {
+        width: 44px;
+        height: 24px;
+        border-radius: 24px;
+        position: relative;
+        transition: 0.3s;
+    }
+    .toggle-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        position: absolute;
+        top: 3px;
+        transition: 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .status-tersedia .toggle-track {
+        background: #FF8A00; /* Orange when active */
+    }
+    .status-tersedia .toggle-thumb {
+        left: 23px;
+    }
+    .status-habis .toggle-track {
+        background: #E0E0E0; /* Light gray when inactive */
+    }
+    .status-habis .toggle-thumb {
+        left: 3px;
+    }
+
+    /* Menu Card Grid */
+    .menu-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .m-card {
+        background: #fff;
+        border: 1px solid #F0F0F0;
+        border-radius: 12px;
+        padding: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .m-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .m-card-disabled {
+        background: #F4F4F4;
+        border-color: #E8E8E8;
+    }
+    .m-card-disabled .m-card-title, 
+    .m-card-disabled .m-card-desc, 
+    .m-card-disabled .status-label {
+        color: #A0A0A0 !important;
+    }
+    .m-card-disabled .m-card-title {
+        text-decoration: line-through;
+    }
+    .m-card-disabled .m-card-price {
+        background: #E8E8E8 !important;
+        color: #A0A0A0 !important;
+    }
+    
+    .m-card-top {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    .m-card-img-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .m-card-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .m-card-placeholder {
+        width: 100%;
+        height: 100%;
+        background-color: #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #aaa;
+        font-size: 1.5rem;
+    }
+    .m-card-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(244, 244, 244, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #D32F2F;
+        font-size: 2rem;
+    }
+    
+    .m-card-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .m-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+    .m-card-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .m-card-price {
+        background: #FFEAD6;
+        color: #A6652B;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1.1;
+        flex-shrink: 0;
+    }
+    .m-card-price .price-label {
+        font-size: 0.6rem;
+        font-weight: 800;
+    }
+    .m-card-price .price-value {
+        font-size: 0.85rem;
+        font-weight: 800;
+    }
+    
+    .m-card-desc {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #666;
+        line-height: 1.4;
+    }
+    
+    .m-card-divider {
+        border: 0;
+        border-top: 1px solid #EEEEEE;
+        margin: 1rem 0;
+    }
+    
+    .m-card-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .m-card-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .status-label {
+        font-size: 0.8rem;
+        color: #555;
+        font-weight: 600;
+    }
+    .status-badge {
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        letter-spacing: 0.5px;
+    }
+    .badge-ready {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    .badge-unavailable {
+        background: #FFEBEE;
+        color: #D32F2F;
+    }
+
+    /* Summary Cards */
+    .menu-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+    .summary-card {
+        background: var(--color-surface);
+        border: 1px solid #E0D5C1;
+        border-radius: 12px;
+        padding: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .summary-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    .sc-total .summary-icon { background: rgba(140, 94, 53, 0.15); color: var(--color-primary); }
+    .sc-aktif .summary-icon { background: rgba(92, 184, 92, 0.15); color: var(--color-success); }
+    .sc-out .summary-icon { background: rgba(44, 36, 27, 0.1); color: #888; }
+    
+    .summary-info p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
+    }
+    .summary-info h4 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #222;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_menu %}
+<li >
+    <a href="{{ url_for('kasir.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+</li>
+<li class="active">
+    <a href="{{ url_for('kasir.kelola_menu_cepat') }}"><i class="fas fa-utensils"></i> Status Menu</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="menu-controls">
+    <div class="menu-filters">
+        <input type="text" class="search-input" placeholder="Cari nama menu...">
+        <select class="cat-select">
+            <option>Semua Kategori</option>
+            <option>Makanan</option>
+            <option>Minuman</option>
+            <option>Cemilan</option>
+        </select>
+    </div>
+</div>
+
+<div class="menu-table-container" style="background: transparent; border: none; padding: 0;">
+    <div class="menu-card-grid">
+        {% for menu in menus %}
+        <div class="m-card {% if menu.status_menu != 'Tersedia' %}m-card-disabled{% endif %}" data-nama="{{ menu.nama_menu|lower }}" data-kategori="{{ menu.kategori }}">
+            <div class="m-card-top">
+                <div class="m-card-img-wrapper">
+                    {% if menu.gambar_menu %}
+                    <img src="{{ menu.gambar_menu }}" alt="{{ menu.nama_menu }}">
+                    {% else %}
+                    <div class="m-card-placeholder"><i class="fas fa-coffee"></i></div>
+                    {% endif %}
+                    {% if menu.status_menu != 'Tersedia' %}
+                    <div class="m-card-overlay"><i class="fas fa-ban"></i></div>
+                    {% endif %}
+                </div>
+                <div class="m-card-info">
+                    <div class="m-card-header">
+                        <h4 class="m-card-title">{{ menu.nama_menu }}</h4>
+                        <div class="m-card-price">
+                            <span class="price-label">RP</span>
+                            <span class="price-value">{{ "{:,.0f}".format(menu.harga).replace(',', '.') }}</span>
+                        </div>
+                    </div>
+                    <p class="m-card-desc">{{ menu.deskripsi[:60] }}{% if menu.deskripsi and menu.deskripsi|length > 60 %}...{% endif %}</p>
+                </div>
+            </div>
+            
+            <hr class="m-card-divider">
+            
+            <div class="m-card-bottom">
+                <div class="m-card-status">
+                    <span class="status-label">Ketersediaan</span>
+                    {% if menu.status_menu == 'Tersedia' %}
+                    <span class="status-badge badge-ready">READY</span>
+                    {% else %}
+                    <span class="status-badge badge-unavailable">UNAVAILABLE</span>
+                    {% endif %}
+                </div>
+                <div class="m-card-toggle">
+                    {% if menu.status_menu == 'Tersedia' %}
+                    <a href="{{ url_for('kasir.toggle_menu', id_menu=menu.id_menu) }}" class="status-toggle status-tersedia" title="Klik untuk menonaktifkan">
+                        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('kasir.toggle_menu', id_menu=menu.id_menu) }}" class="status-toggle status-habis" title="Klik untuk mengaktifkan">
+                        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #888; background: white; border-radius: 12px;">
+            Belum ada data menu.
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="padding: 1rem 0; color: #888; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <span id="paginationText">Menampilkan menu</span>
+        <!-- Pagination JS Container -->
+        <div id="paginationControls" style="display: flex; gap: 0.5rem; align-items: center;">
+        </div>
+    </div>
+</div>
+
+<div class="menu-summary-grid">
+    <div class="summary-card sc-total">
+        <div class="summary-icon"><i class="fas fa-utensils"></i></div>
+        <div class="summary-info">
+            <p>Total Menu</p>
+            <h4>{{ menus|length }} Items</h4>
+        </div>
+    </div>
+    
+    {% set counts = namespace(aktif=0, habis=0) %}
+    {% for m in menus %}
+        {% if m.status_menu == 'Tersedia' %}
+            {% set counts.aktif = counts.aktif + 1 %}
+        {% else %}
+            {% set counts.habis = counts.habis + 1 %}
+        {% endif %}
+    {% endfor %}
+    
+    <div class="summary-card sc-aktif">
+        <div class="summary-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="summary-info">
+            <p>Tersedia</p>
+            <h4>{{ counts.aktif }} Items</h4>
+        </div>
+    </div>
+    
+    <div class="summary-card sc-out">
+        <div class="summary-icon"><i class="fas fa-ban"></i></div>
+        <div class="summary-info">
+            <p>Tidak Tersedia</p>
+            <h4>{{ counts.habis }} Items</h4>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-input');
+        const catSelect = document.querySelector('.cat-select');
+        const menuCards = document.querySelectorAll('.m-card');
+        const paginationControls = document.getElementById('paginationControls');
+        const paginationText = document.getElementById('paginationText');
+        
+        let filteredCards = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        function applyPagination() {
+            const totalPages = Math.ceil(filteredCards.length / itemsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            // Hide all first
+            menuCards.forEach(card => card.style.display = 'none');
+            
+            // Show only current page items
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            
+            const pageItems = filteredCards.slice(startIndex, endIndex);
+            pageItems.forEach(card => card.style.display = 'flex');
+            
+            // Update Text
+            paginationText.innerText = `Menampilkan halaman ${currentPage} dari ${totalPages} (Total ${filteredCards.length} menu)`;
+            
+            // Update Buttons
+            let btnHtml = '';
+            
+            // Prev btn
+            if (currentPage > 1) {
+                btnHtml += `<button onclick="window.changePage(${currentPage - 1})" style="border: 1px solid #ddd; background: white; border-radius: 4px; padding: 2px 8px; cursor: pointer; color: #555;">&lt;</button>`;
+            } else {
+                btnHtml += `<button style="border: 1px solid #eee; background: #fafafa; border-radius: 4px; padding: 2px 8px; color: #ccc;" disabled>&lt;</button>`;
+            }
+            
+            // Number btns
+            for(let i=1; i<=totalPages; i++) {
+                if(i === currentPage) {
+                    btnHtml += `<button style="border: none; background: #C00A27; color: white; border-radius: 4px; padding: 2px 10px; font-weight: bold;">${i}</button>`;
+                } else {
+                    btnHtml += `<button onclick="window.changePage(${i})" style="border: none; background: transparent; color: #555; padding: 2px 10px; cursor:pointer;">${i}</button>`;
+                }
+            }
+            
+            // Next btn
+            if (currentPage < totalPages) {
+                btnHtml += `<button onclick="window.changePage(${currentPage + 1})" style="border: 1px solid #ddd; background: white; border-radius: 4px; padding: 2px 8px; cursor: pointer; color: #555;">&gt;</button>`;
+            } else {
+                btnHtml += `<button style="border: 1px solid #eee; background: #fafafa; border-radius: 4px; padding: 2px 8px; color: #ccc;" disabled>&gt;</button>`;
+            }
+            
+            paginationControls.innerHTML = btnHtml;
+        }
+
+        window.changePage = function(page) {
+            currentPage = page;
+            applyPagination();
+        };
+
+        function filterMenu() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCat = catSelect.value;
+            
+            filteredCards = [];
+            menuCards.forEach(card => {
+                const name = card.getAttribute('data-nama') || '';
+                const cat = card.getAttribute('data-kategori') || '';
+
+                const matchName = name.includes(searchTerm);
+                const matchCat = (selectedCat === 'Semua Kategori' || selectedCat === '' || cat === selectedCat);
+
+                if (matchName && matchCat) {
+                    filteredCards.push(card);
+                }
+            });
+            
+            currentPage = 1; // Reset to page 1 on filter
+            applyPagination();
+        }
+
+        searchInput.addEventListener('input', filterMenu);
+        catSelect.addEventListener('change', filterMenu);
+        
+        filterMenu();
+    });
+</script>
+{% endblock %}

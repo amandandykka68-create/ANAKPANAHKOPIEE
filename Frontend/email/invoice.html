@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice Anak Panah Kopi</title>
+    <style>
+        body { font-family: 'Helvetica', Arial, sans-serif; background-color: #f9f9f9; padding: 20px; }
+        .invoice-container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; border-bottom: 2px solid #8C5E35; padding-bottom: 20px; margin-bottom: 20px; }
+        .header h1 { color: #8C5E35; margin: 0; }
+        .details { margin-bottom: 30px; }
+        .details p { margin: 5px 0; color: #555; }
+        .table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .table th { background-color: #f5f5f5; color: #333; }
+        .total-row { font-weight: bold; font-size: 1.2em; color: #8C5E35; }
+        .footer { text-align: center; font-size: 0.9em; color: #777; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <h1>Anak Panah Kopi</h1>
+            <p>Struk Pembayaran / Invoice</p>
+        </div>
+        
+        <div class="details">
+            <p><strong>ID Transaksi:</strong> #{{ transaksi.id_transaksi }}</p>
+            <p><strong>Tanggal:</strong> {{ transaksi.tanggal_transaksi.strftime('%d %B %Y, %H:%M') if transaksi.tanggal_transaksi else 'Hari Ini' }}</p>
+            <p><strong>Status:</strong> Lunas</p>
+        </div>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Jumlah</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in detail %}
+                <tr>
+                    <td>Menu #{{ item.id_menu }}</td>
+                    <td>{{ item.jumlah }}x</td>
+                    <td>Rp {{ '{:,.0f}'.format(item.subtotal).replace(',', '.') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="2" style="text-align: right;">Total Pembayaran:</td>
+                    <td>Rp {{ '{:,.0f}'.format(transaksi.total_harga).replace(',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="footer">
+            <p>Terima kasih telah mengunjungi Anak Panah Kopi!</p>
+            <p>Semoga harimu menyenangkan.</p>
+        </div>
+    </div>
+</body>
+</html>

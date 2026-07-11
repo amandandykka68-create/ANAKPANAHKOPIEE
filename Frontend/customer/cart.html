@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Keranjang - Anak Panah Kopi{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/dashboard.css') }}">
+<style>
+    /* CART UI REDESIGN */
+    .cart-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 1.5rem;
+        background: #FDF9F5;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    .cart-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #1A1A2E;
+        margin-bottom: 1.2rem;
+    }
+    .cart-card {
+        display: flex;
+        align-items: center;
+        background: white;
+        border: 1px solid #F0E8DC;
+        border-radius: 12px;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 2px 8px rgba(140, 94, 53, 0.05);
+        position: relative;
+    }
+    .cart-img {
+        width: 75px;
+        height: 75px;
+        border-radius: 10px;
+        object-fit: cover;
+        margin-right: 1rem;
+        background: #F5EDE3;
+    }
+    .cart-info {
+        flex: 1;
+    }
+    .cart-name {
+        font-weight: 700;
+        color: #1A1A2E;
+        font-size: 1rem;
+        margin: 0;
+    }
+    .cart-desc {
+        font-size: 0.75rem;
+        color: #9CA3AF;
+        margin: 0.2rem 0 0.4rem 0;
+    }
+    .cart-price {
+        font-weight: 800;
+        color: var(--color-primary);
+        font-size: 1.15rem;
+        margin: 0;
+    }
+    .stepper {
+        display: flex;
+        align-items: center;
+        background: rgba(140, 94, 53, 0.08); /* light brown */
+        border-radius: 20px;
+        padding: 0.3rem 0.5rem;
+        position: absolute;
+        bottom: 0.8rem;
+        right: 0.8rem;
+    }
+    .stepper-btn {
+        background: white;
+        border: none;
+        color: var(--color-primary);
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .stepper-val {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #333;
+        margin: 0 0.8rem;
+    }
+    .add-more-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        border: 2px dashed #C4A882;
+        border-radius: 12px;
+        background: transparent;
+        color: var(--color-primary);
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        margin: 1.5rem 0;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .add-more-btn:hover {
+        background: rgba(140, 94, 53, 0.05);
+    }
+    .cart-summary {
+        margin-top: 1.5rem;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 1rem;
+    }
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #F0E8DC;
+        padding-top: 1rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1A1A2E;
+    }
+    .total-price {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--color-primary);
+    }
+
+    /* Form Styles */
+    .checkout-form {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 4px solid #F0E8DC;
+    }
+    .checkout-form label {
+        display: block; margin-bottom: 0.5rem; color: #555; font-weight: 700; font-size: 0.9rem;
+    }
+    .checkout-form input, .checkout-form select {
+        width: 100%; padding: 0.9rem; border: 1.5px solid #F0E8DC; border-radius: 10px;
+        margin-bottom: 1.2rem; font-family: 'Outfit', sans-serif; font-size: 0.95rem; outline: none;
+    }
+    .checkout-form input:focus, .checkout-form select:focus {
+        border-color: var(--color-primary);
+    }
+    .btn-checkout {
+        width: 100%;
+        padding: 1.1rem;
+        background: linear-gradient(135deg, var(--color-primary), #A0702A);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(140, 94, 53, 0.3);
+        transition: transform 0.2s;
+    }
+    .btn-checkout:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="customer-header">
+    <div style="display: flex; align-items: center;">
+        <h2 style="margin: 0; color: var(--color-primary-dark);"><a href="{{ url_for('customer.menu') }}"><i class="fas fa-arrow-left"></i> Kembali</a></h2>
+    </div>
+</header>
+
+<div class="cart-container">
+    <h2 class="cart-title">Daftar Pesanan</h2>
+    
+    {% if cart_items %}
+        {% for item in cart_items %}
+        <div class="cart-card">
+            <img src="{{ item.menu.gambar_menu if item.menu.gambar_menu else url_for('static', filename='assets/img/placeholder.png') }}" class="cart-img" alt="Menu Image">
+            <div class="cart-info">
+                <h4 class="cart-name">{{ item.menu.nama_menu }}</h4>
+                <p class="cart-desc">{{ item.menu.deskripsi[:40] ~ '...' if item.menu.deskripsi else 'Tidak ada deskripsi' }}</p>
+                <p class="cart-price">Rp {{ "{:,.0f}".format(item.menu.harga).replace(',', '.') }}</p>
+            </div>
+            
+            <div class="stepper">
+                <form action="{{ url_for('customer.decrease_cart', id_detail=item.id_detail) }}" method="POST" style="margin:0; display:flex;">
+                    <button type="submit" class="stepper-btn" style="color: var(--color-primary);">-</button>
+                </form>
+                <span class="stepper-val">{{ item.jumlah }}</span>
+                <form action="{{ url_for('customer.increase_cart', id_detail=item.id_detail) }}" method="POST" style="margin:0; display:flex;">
+                    <button type="submit" class="stepper-btn" style="color: var(--color-primary);">+</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <a href="{{ url_for('customer.menu') }}" class="add-more-btn">
+            <i class="fas fa-plus-circle"></i> Tambah Pesanan Lain
+        </a>
+
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span style="font-weight: 600;">Rp {{ "{:,.0f}".format(total).replace(',', '.') }}</span>
+            </div>
+            <div class="summary-total">
+                <span>Total Pembayaran</span>
+                <span class="total-price">Rp {{ "{:,.0f}".format(total).replace(',', '.') }}</span>
+            </div>
+        </div>
+
+        <div class="checkout-form">
+            <h3 style="color: #1A1A2E; margin-bottom: 1.5rem; font-weight: 800;"><i class="fas fa-clipboard-list" style="color: var(--color-primary);"></i> Lengkapi Data Pesanan</h3>
+            <form action="{{ url_for('customer.checkout') }}" method="POST">
+                <label for="nama_pembeli">Nama Pemesan</label>
+                <input type="text" id="nama_pembeli" name="nama_pembeli" placeholder="Masukkan nama Anda" required>
+                
+                <label for="no_hp_pembeli">Nomor WhatsApp (untuk notifikasi pesanan)</label>
+                <input type="text" id="no_hp_pembeli" name="no_hp_pembeli" placeholder="Contoh: 08123456789" required>
+                
+                <label for="nomor_meja">Nomor Meja</label>
+                <input type="text" id="nomor_meja" name="nomor_meja" placeholder="Contoh: Meja 12 / Takeaway" required>
+                
+                <label for="metode_bayar">Metode Pembayaran</label>
+                <select id="metode_bayar" name="metode_bayar" required>
+                    <option value="Tunai">Bayar Tunai di Kasir</option>
+                    <option value="QRIS">QRIS / E-Wallet</option>
+                </select>
+                
+                <button type="submit" class="btn-checkout">
+                    Proses Pembayaran <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
+                </button>
+            </form>
+        </div>
+        
+    {% else %}
+        <div class="text-center" style="padding: 3rem;">
+            <i class="fas fa-shopping-basket" style="font-size: 4rem; color: #ddd; margin-bottom: 1rem;"></i>
+            <h3 style="font-weight: 800; color: #1A1A2E;">Keranjang Anda Kosong</h3>
+            <p style="color: #9CA3AF; margin-bottom: 2rem;">Yuk, mulai pilih kopi favoritmu!</p>
+            <a href="{{ url_for('customer.menu') }}" class="add-more-btn" style="border: none; background: var(--color-primary); color: white;">Lihat Menu</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Tracking Pesanan - Anak Panah Kopi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tracking-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background-color: #FDFBF7;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: var(--shadow-md);
+    }
+    .tracking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 2px dashed var(--color-secondary);
+    }
+    .tracking-header h2 {
+        color: var(--color-primary-dark);
+        margin: 0;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .tracking-body {
+        padding: 1.5rem;
+    }
+    
+    .estimasi-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .estimasi-card .time-badge {
+        background-color: var(--color-primary);
+        color: white;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        line-height: 1.2;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    /* Timeline Styles */
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 2rem;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 11px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: var(--color-secondary);
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    
+    .timeline-icon {
+        position: absolute;
+        left: -2rem;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        z-index: 1;
+        background: #FDFBF7;
+    }
+    
+    .timeline-item.active .timeline-icon.pending { color: #F57C00; background-color: #FFF3E0; }
+    .timeline-item.active .timeline-icon.proses { color: #1976D2; background-color: #E3F2FD; }
+    .timeline-item.active .timeline-icon.selesai { color: #388E3C; background-color: #E8F5E9; }
+    
+    .timeline-item.inactive { opacity: 0.4; }
+    .timeline-item.inactive .timeline-icon { color: #999; background-color: #eee; }
+    
+    .timeline-content h4 { margin: 0 0 0.2rem 0; font-size: 1rem; color: #333; }
+    .timeline-content p { margin: 0; font-size: 0.8rem; color: #777; }
+    
+    .status-badge {
+        font-size: 0.6rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 5px;
+        font-weight: bold;
+    }
+    .badge-pending { background: #FFF3E0; color: #F57C00; }
+    .badge-proses { background: #E3F2FD; color: #1976D2; }
+    .badge-selesai { background: #E8F5E9; color: #388E3C; }
+    
+    .order-details {
+        border: 1px solid var(--color-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background-color: #ffffff;
+    }
+    
+    .order-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .order-item img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    .order-item-info { flex: 1; }
+    .order-item-info h5 { margin: 0 0 0.2rem 0; font-size: 0.9rem; }
+    .order-item-info p { margin: 0; font-size: 0.8rem; color: #777; }
+    .order-item-price { font-weight: bold; font-size: 0.9rem; color: var(--color-primary-dark); }
+    
+    .totals { border-top: 1px dashed var(--color-secondary); padding-top: 1rem; margin-top: 1rem; }
+    .totals-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--color-text-secondary); }
+    .totals-row.grand { font-size: 1.1rem; font-weight: bold; color: var(--color-primary-dark); margin-top: 0.5rem; }
+    
+    .btn-contact {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: var(--transition-fast);
+    }
+    .btn-contact:hover {
+        background-color: var(--color-primary-dark);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 1rem; margin-bottom: 1rem;">
+    <h3 style="color: var(--color-primary-dark);">Status Pesanan Real-time</h3>
+</div>
+
+<div class="tracking-container">
+    <div class="tracking-header">
+        <h2><i class="fas fa-utensils"></i> Anak Panah Kopi</h2>
+        <i class="fas fa-redo-alt" style="color: #333; cursor: pointer;" onclick="location.reload()"></i>
+    </div>
+    
+    <div class="tracking-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+        
+        <!-- Kolom Kiri: Estimasi & Timeline -->
+        <div>
+        <div class="estimasi-card">
+            <div>
+                <h3 style="margin:0; color:#333; font-size:1.1rem;">Estimasi Pesanan</h3>
+                <p style="margin:0; color:#777; font-size:0.85rem;">Pesanan sedang disiapkan</p>
+            </div>
+            <div class="time-badge">
+                <span style="font-size:1.2rem;">15-20</span>
+                <span style="font-size:0.8rem;">Min</span>
+            </div>
+        </div>
+        
+        <div class="timeline">
+            <!-- PENDING -->
+            <div class="timeline-item active">
+                <div class="timeline-icon pending"><i class="fas fa-clipboard-list"></i></div>
+                <div class="timeline-content">
+                    <h4>Pesanan Diterima <span class="status-badge badge-pending">PENDING</span></h4>
+                    <p>Sistem kami sedang memproses pesanan Anda.</p>
+                </div>
+            </div>
+            
+            <!-- PROSES -->
+            <div class="timeline-item {% if transaksi.status_pesanan == 'Menunggu Pembayaran' %}inactive{% else %}active{% endif %}">
+                <div class="timeline-icon proses"><i class="fas fa-fire"></i></div>
+                <div class="timeline-content">
+                    <h4>Dalam Proses <span class="status-badge badge-proses">PROSES</span></h4>
+                    <p>Koki kami sedang menyiapkan hidangan lezat Anda.</p>
+                </div>
+            </div>
+            
+            <!-- SELESAI -->
+            <div class="timeline-item {% if transaksi.status_pesanan != 'Selesai' %}inactive{% else %}active{% endif %}">
+                <div class="timeline-icon selesai"><i class="fas fa-check-circle"></i></div>
+                <div class="timeline-content">
+                    <h4>Pesanan Selesai <span class="status-badge badge-selesai">SELESAI</span></h4>
+                    <p>Hidangan siap diantarkan ke meja Anda.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+        
+        <!-- Kolom Kanan: Detail Pesanan -->
+        <div class="order-details" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <div>
+                    <div style="font-size:0.7rem; color:var(--color-text-secondary); font-weight:bold;">ID PESANAN</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:var(--color-primary-dark);">#ORD-{{ transaksi.id_transaksi }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size:0.7rem; color:var(--color-text-secondary); font-weight:bold;">NOMOR MEJA</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:var(--color-primary);">Meja {{ transaksi.nomor_meja }}</div>
+                </div>
+            </div>
+            
+            {% for item in items %}
+            <div class="order-item">
+                {% if item.gambar %}
+                <img src="{{ item.gambar }}" alt="{{ item.nama }}">
+                {% else %}
+                <div style="width:50px; height:50px; background:#eee; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-right:1rem;"><i class="fas fa-coffee" style="color:#aaa;"></i></div>
+                {% endif %}
+                
+                <div class="order-item-info">
+                    <h5>{{ item.nama }}</h5>
+                    <p>x {{ item.jumlah }}</p>
+                </div>
+                <div class="order-item-price">
+                    Rp {{ "{:,.0f}".format(item.subtotal).replace(',', '.') }}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="totals">
+                <div class="totals-row">
+                    <span>Subtotal</span>
+                    <span>Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</span>
+                </div>
+                <!-- Pajak diabaikan atau ditambahkan statis jika mau -->
+                <div class="totals-row grand">
+                    <span>Total Pembayaran</span>
+                    <span>Rp {{ "{:,.0f}".format(transaksi.total_harga).replace(',', '.') }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <a href="{{ url_for('customer.menu') }}" class="btn-contact">
+            <i class="fas fa-home"></i> Kembali ke Menu Utama
+        </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto refresh halaman setiap 10 detik agar pelanggan mendapat update real-time
+    {% if transaksi.status_pesanan != 'Selesai' %}
+    setTimeout(function() {
+        window.location.reload();
+    }, 10000);
+    {% endif %}
+</script>
+{% endblock %}
