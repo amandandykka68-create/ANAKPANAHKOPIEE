@@ -53,6 +53,7 @@ CREATE TABLE TRANSAKSI (
     tanggal_transaksi DATETIME DEFAULT CURRENT_TIMESTAMP,
     total_harga FLOAT NOT NULL,
     status_pesanan ENUM('Menunggu Pembayaran', 'Diproses', 'Selesai', 'Dibatalkan') DEFAULT 'Menunggu Pembayaran',
+    tipe_pesanan ENUM('Online', 'Offline') DEFAULT 'Online',
     FOREIGN KEY (id_user) REFERENCES USERS(id_user) ON DELETE CASCADE,
     FOREIGN KEY (id_meja) REFERENCES MEJA(id_meja) ON DELETE SET NULL,
     FOREIGN KEY (id_kasir) REFERENCES USERS(id_user) ON DELETE SET NULL

@@ -410,6 +410,7 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
           <th>Pembeli</th>
           <th>Menu</th>
           <th>Total</th>
+          <th>Sumber</th>
           <th>Metode</th>
         </tr>
       </thead>
@@ -427,6 +428,13 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
           </td>
           <td style="font-weight: 800">
             Rp {{ "{:,.0f}".format(t.total_harga).replace(',', '.') }}
+          </td>
+          <td>
+            {% if t.tipe_pesanan == 'Offline' %}
+            <span style="font-size: 0.75rem; font-weight: 700; background: #fff7ed; color: #ea580c; padding: 3px 8px; border-radius: 6px;">Offline</span>
+            {% else %}
+            <span style="font-size: 0.75rem; font-weight: 700; background: #f0fdf4; color: #16a34a; padding: 3px 8px; border-radius: 6px;">Online</span>
+            {% endif %}
           </td>
           <td>{{ t.metode_bayar }}</td>
         </tr>

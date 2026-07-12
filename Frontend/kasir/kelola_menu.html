@@ -348,8 +348,11 @@
 {% endblock %}
 
 {% block sidebar_menu %}
-<li >
+<li>
     <a href="{{ url_for('kasir.dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+</li>
+<li>
+    <a href="{{ url_for('kasir.pos') }}"><i class="fas fa-cash-register"></i> Buat Pesanan (POS)</a>
 </li>
 <li class="active">
     <a href="{{ url_for('kasir.kelola_menu_cepat') }}"><i class="fas fa-utensils"></i> Status Menu</a>

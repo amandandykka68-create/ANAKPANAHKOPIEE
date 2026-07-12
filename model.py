@@ -58,6 +58,7 @@ class Transaksi(db.Model):
     tanggal_transaksi = db.Column(db.DateTime, default=datetime.utcnow)
     total_harga = db.Column(db.Float, nullable=False)
     status_pesanan = db.Column(db.Enum('Menunggu Pembayaran', 'Diproses', 'Selesai', 'Dibatalkan'), default='Menunggu Pembayaran')
+    tipe_pesanan = db.Column(db.Enum('Online', 'Offline'), default='Online', nullable=False)
     
     # Payment info
     metode_bayar = db.Column(db.Enum('Tunai', 'QRIS'), nullable=False)

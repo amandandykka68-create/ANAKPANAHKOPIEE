@@ -184,3 +184,73 @@ def kirim_nota_wa(id_transaksi):
         flash(f'Gagal kirim WA: {wa_reason}', 'error')
         
     return redirect(url_for('kasir.dashboard'))
+
+@kasir_bp.route('/pos')
+def pos():
+    if not check_kasir(): return redirect(url_for('auth.login'))
+    menus = Menu.query.filter_by(status_menu='Tersedia').all()
+    # Group menus by category
+    makanan = [m for m in menus if m.kategori == 'Makanan']
+    minuman = [m for m in menus if m.kategori == 'Minuman']
+    cemilan = [m for m in menus if m.kategori == 'Cemilan']
+    return render_template('kasir/pos.html', makanan=makanan, minuman=minuman, cemilan=cemilan)
+
+@kasir_bp.route('/pos/buat_pesanan', methods=['POST'])
+def pos_buat_pesanan():
+    if not check_kasir(): return {"status": "error", "message": "Unauthorized"}, 401
+    
+    data = request.json
+    if not data:
+        return {"status": "error", "message": "Data tidak valid"}, 400
+        
+    nama = data.get('nama_pelanggan')
+    meja = data.get('nomor_meja', '0')
+    if not meja.strip():
+        meja = '0'
+    no_hp = data.get('no_hp', '-')
+    metode = data.get('metode_bayar', 'Tunai')
+    items = data.get('items', [])
+    
+    if not nama or not items:
+        return {"status": "error", "message": "Nama pelanggan atau keranjang tidak boleh kosong"}, 400
+        
+    try:
+        total_harga = sum(item['subtotal'] for item in items)
+        
+        # Buat transaksi dengan tipe_pesanan='Offline'
+        transaksi = Transaksi(
+            nama_pembeli=nama,
+            email_pembeli='offline@kasir.com', # Placeholder for offline
+            no_hp_pembeli=no_hp,
+            nomor_meja=meja,
+            id_kasir=session.get('user_id'),
+            total_harga=total_harga,
+            status_pesanan='Diproses',
+            metode_bayar=metode,
+            tipe_pesanan='Offline'
+        )
+        db.session.add(transaksi)
+        db.session.flush() # Untuk mendapatkan id_transaksi
+        
+        for item in items:
+            dt = DetailTransaksi(
+                id_transaksi=transaksi.id_transaksi,
+                id_menu=item['id_menu'],
+                jumlah=item['jumlah'],
+                harga_satuan=item['harga'],
+                subtotal=item['subtotal'],
+                catatan=item.get('catatan', '')
+            )
+            db.session.add(dt)
+            
+        db.session.commit()
+        
+        # Kirim nota WA jika nomor valid
+        if no_hp and len(no_hp) >= 10:
+            proses_kirim_nota(transaksi)
+            
+        return {"status": "success", "message": "Pesanan berhasil dibuat!", "id_transaksi": transaksi.id_transaksi}
+    except Exception as e:
+        db.session.rollback()
+        return {"status": "error", "message": str(e)}, 500
+
