@@ -464,9 +464,15 @@
                     </div>
                     
                     {% if t.metode_bayar == 'Tunai' %}
-                    <form action="{{ url_for('kasir.konfirmasi_tunai') }}" method="POST" style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
+                    <form action="{{ url_for('kasir.konfirmasi_tunai') }}" method="POST" style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;" onsubmit="if(parseInt(document.getElementById('uang_{{ t.id_transaksi }}').value) < {{ t.total_harga }}) { alert('Uang diterima kurang dari total tagihan!'); return false; } return true;">
                         <input type="hidden" name="id_transaksi" value="{{ t.id_transaksi }}">
                         <input type="text" name="kode_pembayaran" placeholder="Kode Kasir" required style="width: 130px; padding: 6px 10px; border: 2px solid #eee; border-radius: 8px; font-size: 0.8rem; outline:none; text-align:center;">
+                        
+                        <div style="width: 130px; display:flex; flex-direction:column; gap:3px;">
+                            <input type="number" id="uang_{{ t.id_transaksi }}" placeholder="Uang Diterima" required style="width: 100%; padding: 6px 10px; border: 2px solid #eee; border-radius: 8px; font-size: 0.8rem; outline:none; text-align:center;" oninput="calcKembalianDashboard({{ t.id_transaksi }}, {{ t.total_harga }})">
+                            <div id="kembali_{{ t.id_transaksi }}" style="font-size:0.75rem; font-weight:700; text-align:right; min-height: 15px;"></div>
+                        </div>
+
                         <button type="submit" class="btn-action btn-brown" style="width: 100%; justify-content: center;">
                             <i class="fas fa-check-circle"></i> Proses
                         </button>
@@ -476,9 +482,16 @@
                         {% if t.bukti_pembayaran %}
                         <a href="{{ t.bukti_pembayaran }}" target="_blank" style="font-size:0.75rem; color:var(--color-primary); font-weight:600; text-decoration:none;"><i class="fas fa-image"></i> Lihat Bukti QRIS</a>
                         {% endif %}
-                        <a href="{{ url_for('kasir.konfirmasi_qris', id_transaksi=t.id_transaksi) }}" class="btn-action btn-brown" style="text-decoration:none;">
-                            <i class="fas fa-check-circle"></i> Proses Masakan
-                        </a>
+                        <div style="display:flex; gap:5px;">
+                            {% if t.bukti_pembayaran %}
+                            <a href="{{ url_for('kasir.tolak_qris', id_transaksi=t.id_transaksi) }}" class="btn-action" style="background:#dc3545; text-decoration:none; padding: 0.8rem;" onclick="return confirm('Tolak bukti pembayaran ini? Customer harus upload ulang.');" title="Tolak Bukti Pembayaran">
+                                <i class="fas fa-times-circle"></i> Tolak
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('kasir.konfirmasi_qris', id_transaksi=t.id_transaksi) }}" class="btn-action btn-brown" style="text-decoration:none;">
+                                <i class="fas fa-check-circle"></i> Proses Masakan
+                            </a>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
@@ -598,5 +611,23 @@
             });
         }
     });
+
+    function calcKembalianDashboard(id, total) {
+        const input = document.getElementById('uang_' + id).value;
+        const div = document.getElementById('kembali_' + id);
+        if (!input) {
+            div.innerText = '';
+            return;
+        }
+        const bayar = parseInt(input);
+        if (bayar >= total) {
+            const kembalian = bayar - total;
+            div.innerText = 'Kembali: Rp ' + kembalian.toLocaleString('id-ID').replace(/,/g, '.');
+            div.style.color = '#00A65A';
+        } else {
+            div.innerText = 'Uang Kurang!';
+            div.style.color = '#dc3545';
+        }
+    }
 </script>
 {% endblock %}

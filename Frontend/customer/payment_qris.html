@@ -121,4 +121,14 @@ endblock %} {% block content %}
   >
   {% endif %}
 </div>
+
+<script>
+  // Auto refresh halaman setiap 10 detik HANYA JIKA bukti sudah diupload dan status masih menunggu
+  // Agar customer tahu jika ditolak atau diterima
+  {% if transaksi.bukti_pembayaran and transaksi.status_pesanan == 'Menunggu Pembayaran' %}
+  setTimeout(function() {
+      window.location.reload();
+  }, 10000);
+  {% endif %}
+</script>
 {% endblock %}

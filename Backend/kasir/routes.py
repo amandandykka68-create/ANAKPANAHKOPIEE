@@ -92,6 +92,24 @@ def konfirmasi_qris(id_transaksi):
     
     return redirect(url_for('kasir.dashboard'))
 
+@kasir_bp.route('/tolak_qris/<int:id_transaksi>')
+def tolak_qris(id_transaksi):
+    if not check_kasir(): return redirect(url_for('auth.login'))
+    
+    transaksi = Transaksi.query.get_or_404(id_transaksi)
+    if transaksi.status_pesanan == 'Menunggu Pembayaran' and transaksi.metode_bayar == 'QRIS':
+        transaksi.bukti_pembayaran = None
+        db.session.commit()
+        
+        # Notify via WA if number is valid
+        if transaksi.no_hp_pembeli and len(transaksi.no_hp_pembeli) >= 10:
+            pesan = f"Halo {transaksi.nama_pembeli}!\n\nMohon maaf, bukti pembayaran QRIS Anda untuk pesanan ORD-{transaksi.id_transaksi:03d} kami tolak (misal: buram/tidak sesuai).\nSilakan upload ulang bukti pembayaran yang benar melalui halaman pesanan Anda."
+            send_whatsapp_message(transaksi.no_hp_pembeli, pesan)
+            
+        flash('Bukti pembayaran QRIS berhasil ditolak. Customer harus mengunggah ulang.', 'success')
+    
+    return redirect(url_for('kasir.dashboard'))
+
 @kasir_bp.route('/selesaikan_pesanan/<int:id_transaksi>')
 def selesaikan_pesanan(id_transaksi):
     if not check_kasir(): return redirect(url_for('auth.login'))

@@ -400,6 +400,18 @@
                 </div>
             </div>
 
+            <!-- Kalkulator Kembalian Tunai -->
+            <div id="tunai-calculator" style="margin-bottom: 1.5rem; display: block; background: #f9f9f9; padding: 1rem; border-radius: 12px; border: 1px solid #eee;">
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label class="form-label">Uang Diterima (Rp)</label>
+                    <input type="number" class="form-input" id="posUangDiterima" placeholder="Contoh: 100000" oninput="calcKembalianPOS()">
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                    <span style="color: #555;">Kembalian:</span>
+                    <span id="posKembalianDisplay" style="font-size: 1.2rem; color: var(--color-primary);">Rp 0</span>
+                </div>
+            </div>
+
             <button class="btn-submit" id="btnSubmitOrder" onclick="processOrder()">
                 <i class="fas fa-check-circle"></i> Proses & Selesaikan Pesanan
             </button>
@@ -539,6 +551,7 @@
 
         totalEl.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
         updateFloatingCart(); // Keep synced
+        calcKembalianPOS(); // Update kembalian when cart changes
     }
 
     // Change Qty from Checkout
@@ -566,6 +579,39 @@
         document.getElementById('pm-Tunai').classList.remove('active');
         document.getElementById('pm-QRIS').classList.remove('active');
         document.getElementById('pm-' + method).classList.add('active');
+
+        // Show/Hide Tunai Calculator
+        const tunaiCalc = document.getElementById('tunai-calculator');
+        if (method === 'Tunai') {
+            tunaiCalc.style.display = 'block';
+            calcKembalianPOS();
+        } else {
+            tunaiCalc.style.display = 'none';
+        }
+    }
+
+    function calcKembalianPOS() {
+        const input = document.getElementById('posUangDiterima').value;
+        const display = document.getElementById('posKembalianDisplay');
+        
+        let totalPrice = 0;
+        cart.forEach(item => totalPrice += item.subtotal);
+
+        if (!input) {
+            display.innerText = 'Rp 0';
+            display.style.color = 'var(--color-primary)';
+            return;
+        }
+
+        const bayar = parseInt(input);
+        if (bayar >= totalPrice) {
+            const kembalian = bayar - totalPrice;
+            display.innerText = 'Rp ' + kembalian.toLocaleString('id-ID');
+            display.style.color = '#00A65A';
+        } else {
+            display.innerText = 'Uang Kurang!';
+            display.style.color = '#dc3545';
+        }
     }
 
     // Process Order to Backend
@@ -581,6 +627,16 @@
         if (cart.length === 0) {
             Swal.fire('Perhatian', 'Keranjang kosong', 'warning');
             return;
+        }
+
+        if (paymentMethod === 'Tunai') {
+            const uang = document.getElementById('posUangDiterima').value;
+            let total = 0;
+            cart.forEach(i => total += i.subtotal);
+            if (!uang || parseInt(uang) < total) {
+                Swal.fire('Perhatian', 'Uang yang diterima kurang atau belum diisi!', 'warning');
+                return;
+            }
         }
         
         const btn = document.getElementById('btnSubmitOrder');
