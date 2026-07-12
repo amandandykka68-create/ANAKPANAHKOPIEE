@@ -1,5 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
+
+def get_wib_time():
+    return datetime.utcnow() + timedelta(hours=7)
 
 db = SQLAlchemy()
 
@@ -11,7 +14,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     no_hp = db.Column(db.String(15), nullable=False)
     role = db.Column(db.Enum('Customer', 'Kasir', 'Owner'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_wib_time)
 
 class Meja(db.Model):
     __tablename__ = 'MEJA'
@@ -34,7 +37,7 @@ class Keranjang(db.Model):
     __tablename__ = 'KERANJANG'
     id_keranjang = db.Column(db.Integer, primary_key=True, autoincrement=True)
     session_id = db.Column(db.String(100), nullable=False) # Changed from id_user
-    dibuat_pada = db.Column(db.DateTime, default=datetime.utcnow)
+    dibuat_pada = db.Column(db.DateTime, default=get_wib_time)
 
 class DetailKeranjang(db.Model):
     __tablename__ = 'DETAIL_KERANJANG'
@@ -55,7 +58,7 @@ class Transaksi(db.Model):
     nomor_meja = db.Column(db.String(50), nullable=False)
     
     id_kasir = db.Column(db.Integer, db.ForeignKey('USERS.id_user'), nullable=True)
-    tanggal_transaksi = db.Column(db.DateTime, default=datetime.utcnow)
+    tanggal_transaksi = db.Column(db.DateTime, default=get_wib_time)
     total_harga = db.Column(db.Float, nullable=False)
     status_pesanan = db.Column(db.Enum('Menunggu Pembayaran', 'Diproses', 'Selesai', 'Dibatalkan'), default='Menunggu Pembayaran')
     tipe_pesanan = db.Column(db.Enum('Online', 'Offline'), default='Online', nullable=False)

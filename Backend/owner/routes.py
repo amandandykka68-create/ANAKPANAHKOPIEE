@@ -259,11 +259,12 @@ def export_laporan():
     ws_harian = wb.active
     ws_harian.title = "Laporan Harian"
     
-    tgl_str = request.args.get('laporan_tgl', date.today().isoformat())
+    wib_today_str = (datetime.utcnow() + timedelta(hours=7)).date().isoformat()
+    tgl_str = request.args.get('laporan_tgl', wib_today_str)
     try:
         tgl = datetime.strptime(tgl_str, '%Y-%m-%d').date()
     except ValueError:
-        tgl = date.today()
+        tgl = (datetime.utcnow() + timedelta(hours=7)).date()
         
     tx_harian = Transaksi.query.filter(
         db.func.date(Transaksi.tanggal_transaksi) == tgl

@@ -2,7 +2,7 @@ from flask import render_template, request, session, redirect, url_for, flash
 from model import db, Transaksi, DetailTransaksi, Menu, User
 from Backend.utils import send_invoice_email, send_whatsapp_message
 from . import kasir_bp
-from datetime import date
+from datetime import date, datetime, timedelta
 
 def check_kasir():
     if 'user_role' not in session or session['user_role'] != 'Kasir':
@@ -37,8 +37,8 @@ def dashboard():
     for t in transaksi_diproses:
         t.details = details_by_tx.get(t.id_transaksi, [])
             
-    # Calculate stats for today
-    today = date.today()
+    # Calculate stats for today using WIB (UTC+7)
+    today = (datetime.utcnow() + timedelta(hours=7)).date()
     all_today = Transaksi.query.filter(db.func.date(Transaksi.tanggal_transaksi) == today).all()
     
     total_pesanan_hari_ini = len(all_today)
