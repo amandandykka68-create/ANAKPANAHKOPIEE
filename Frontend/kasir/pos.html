@@ -4,174 +4,215 @@
 {% block page_title %}Point of Sale (POS){% endblock %}
 
 {% block extra_css %}
+<!-- Include same CSS as customer dashboard for identical aesthetic -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/dashboard.css') }}" />
 <style>
-    .pos-container {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-        height: calc(100vh - 120px);
-        overflow: hidden;
+    /* View Toggling */
+    .view-section {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    .view-section.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Menu Section */
-    .menu-section {
-        background: white;
-        border-radius: 24px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(140, 94, 53, 0.05);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+    /* Override some dashboard base styles for full width */
+    .content-wrapper {
+        padding-bottom: 80px; /* Space for floating bar */
     }
 
-    .category-tabs {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
-    }
-    .category-tabs::-webkit-scrollbar { display: none; }
-
-    .cat-btn {
-        padding: 0.8rem 1.5rem;
-        border-radius: 30px;
-        border: 2px solid #F0E8DC;
-        background: transparent;
-        font-weight: 700;
-        color: #8C5E35;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-    }
-    .cat-btn.active, .cat-btn:hover {
-        background: var(--color-primary);
-        color: white;
-        border-color: var(--color-primary);
-        box-shadow: 0 4px 15px rgba(140, 94, 53, 0.2);
-    }
-
-    .menu-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 1.5rem;
-        overflow-y: auto;
-        padding-right: 0.5rem;
-        padding-bottom: 1rem;
-    }
-    
-    /* Custom Scrollbar for Menu Grid */
-    .menu-grid::-webkit-scrollbar {
-        width: 6px;
-    }
-    .menu-grid::-webkit-scrollbar-track {
-        background: #f1f1f1; 
-        border-radius: 10px;
-    }
-    .menu-grid::-webkit-scrollbar-thumb {
-        background: #D4936E; 
-        border-radius: 10px;
-    }
-    
+    /* Menu Card Styles (Copied from Customer Dashboard) */
     .menu-card {
-        background: white;
-        border: 1px solid #F0E8DC;
-        border-radius: 20px;
-        overflow: hidden;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-        position: relative;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
     .menu-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 24px rgba(140, 94, 53, 0.15);
+        box-shadow: 0 10px 25px rgba(140, 94, 53, 0.2);
+        border: 2px solid var(--color-primary);
+    }
+    .menu-card.habis {
+        opacity: 0.6;
+        filter: grayscale(80%);
+        pointer-events: none;
+    }
+    .habis-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--color-danger);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        z-index: 10;
+    }
+
+    /* Floating Cart Bar (Bottom) */
+    .floating-cart {
+        position: fixed;
+        bottom: 0;
+        left: 250px; /* Offset sidebar */
+        right: 0;
+        background: white;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        border-top: 1px solid #eee;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(100%);
+    }
+    .floating-cart.visible {
+        transform: translateY(0);
+    }
+    @media (max-width: 768px) {
+        .floating-cart { left: 0; }
+    }
+
+    .fc-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .fc-title { font-weight: 700; color: #555; font-size: 0.9rem; }
+    .fc-total { font-size: 1.5rem; font-weight: 900; color: var(--color-primary); }
+    
+    .fc-btn {
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(140, 94, 53, 0.3);
+    }
+    .fc-btn:hover { background: #7A502D; }
+
+    /* Category Filter */
+    .pos-categories {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    .cat-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 20px;
+        border: 2px solid #F0E8DC;
+        background: white;
+        font-weight: 700;
+        color: #8C5E35;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    .cat-btn.active {
+        background: var(--color-primary);
+        color: white;
         border-color: var(--color-primary);
     }
+
+    /* Checkout Layout */
+    .checkout-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+        .checkout-container { grid-template-columns: 1fr; }
+    }
     
-    .menu-img {
-        width: 100%;
-        height: 120px;
-        object-fit: cover;
-        background: #f8f9fa;
-    }
-    .menu-info {
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-    .m-title {
-        font-weight: 800;
-        font-size: 0.95rem;
-        color: #1A1A2E;
-        margin-bottom: 0.3rem;
-        line-height: 1.2;
-    }
-    .m-price {
-        font-weight: 700;
-        color: var(--color-primary);
-        margin-top: auto;
-        font-size: 1.1rem;
-    }
-
-    /* Cart Section */
-    .cart-section {
+    .ck-card {
         background: white;
-        border-radius: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        border: 1px solid #F0E8DC;
     }
-
-    .cart-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid #eee;
-        background: linear-gradient(to right, #fafafa, white);
-    }
-    .cart-header h3 {
-        margin: 0;
-        font-weight: 900;
-        color: #111;
+    
+    .ck-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1A1A2E;
+        margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
-    .cart-items {
-        flex-grow: 1;
-        overflow-y: auto;
-        padding: 1.5rem;
+    /* Form styling for Checkout */
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label { display: block; font-weight: 700; color: #555; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .form-input {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--color-primary); }
+
+    .payment-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .pm-card {
+        border: 2px solid #eee;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        font-weight: 700;
+        color: #555;
+        transition: all 0.2s;
+    }
+    .pm-card.active {
+        border-color: var(--color-primary);
+        background: rgba(140, 94, 53, 0.05);
+        color: var(--color-primary);
+    }
+
+    /* Cart List styling */
+    .ck-cart-list {
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        margin-bottom: 1.5rem;
     }
-
-    .cart-item {
+    .ck-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
-        background: #F8F9FA;
-        border-radius: 16px;
-        border: 1px solid transparent;
-        transition: border-color 0.2s;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed #eee;
     }
-    .cart-item:hover {
-        border-color: #E2E8F0;
-    }
+    .ck-item-info { display: flex; flex-direction: column; }
+    .ck-item-name { font-weight: 700; color: #333; }
+    .ck-item-price { font-size: 0.85rem; color: var(--color-primary); font-weight: 600; }
     
-    .c-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
-    .c-name { font-weight: 700; color: #111; }
-    .c-price { font-size: 0.85rem; color: #666; font-weight: 600; }
-    
-    .c-actions {
+    .qty-controls {
         display: flex;
         align-items: center;
         gap: 0.8rem;
@@ -179,114 +220,55 @@
     .qty-btn {
         width: 32px;
         height: 32px;
-        border-radius: 50%;
-        border: none;
+        border-radius: 8px;
+        border: 1px solid #eee;
         background: white;
         color: var(--color-primary);
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.1s;
-    }
-    .qty-btn:active { transform: scale(0.9); }
-    .qty-val { font-weight: 800; width: 20px; text-align: center; }
-
-    .cart-footer {
-        padding: 1.5rem;
-        background: #fdfdfd;
-        border-top: 1px solid #eee;
-        border-radius: 0 0 24px 24px;
-    }
-
-    .c-form-group {
-        margin-bottom: 1rem;
-    }
-    .c-input {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        border: 2px solid #F0E8DC;
-        border-radius: 12px;
-        font-family: inherit;
-        font-size: 0.95rem;
-        outline: none;
-        transition: border-color 0.2s;
-    }
-    .c-input:focus { border-color: var(--color-primary); }
-    
-    .payment-methods {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.2rem;
-    }
-    .pm-btn {
-        flex: 1;
-        padding: 0.8rem;
-        border: 2px solid #F0E8DC;
-        border-radius: 12px;
-        background: white;
-        font-weight: 700;
-        color: #555;
         cursor: pointer;
-        transition: all 0.2s;
     }
-    .pm-btn.active {
-        border-color: var(--color-primary);
-        background: rgba(140, 94, 53, 0.05);
-        color: var(--color-primary);
-    }
-
-    .total-box {
+    .qty-btn:hover { background: #f9f9f9; }
+    
+    .ck-total-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
         padding-top: 1rem;
-        border-top: 2px dashed #eee;
+        border-top: 2px solid #eee;
     }
-    .total-label { font-weight: 700; color: #555; }
-    .total-amount { font-size: 1.8rem; font-weight: 900; color: #111; }
+    .ck-total-label { font-size: 1.1rem; font-weight: 700; color: #555; }
+    .ck-total-val { font-size: 1.8rem; font-weight: 900; color: #111; }
 
-    .btn-process {
+    .btn-submit {
         width: 100%;
         padding: 1.2rem;
-        border: none;
-        border-radius: 16px;
-        background: linear-gradient(135deg, var(--color-primary), #a67243);
+        background: var(--color-primary);
         color: white;
+        border: none;
+        border-radius: 12px;
         font-size: 1.1rem;
         font-weight: 800;
         cursor: pointer;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 15px rgba(140, 94, 53, 0.3);
+    }
+    
+    .topbar-nav {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-        box-shadow: 0 10px 20px rgba(140, 94, 53, 0.3);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-process:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 25px rgba(140, 94, 53, 0.4);
-    }
-    .btn-process:disabled {
-        background: #ccc;
-        box-shadow: none;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .empty-cart {
-        text-align: center;
-        color: #aaa;
-        margin: auto;
-        display: flex;
-        flex-direction: column;
         align-items: center;
         gap: 1rem;
     }
-    .empty-cart i { font-size: 3rem; color: #ddd; }
+    .btn-back {
+        background: #f1f1f1;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        display: none; /* Only show in checkout view */
+    }
 </style>
 {% endblock %}
 
@@ -303,89 +285,128 @@
 {% endblock %}
 
 {% block content %}
-<div class="pos-container">
-    <!-- KIRI: MENU -->
-    <div class="menu-section">
-        <div class="category-tabs">
-            <button class="cat-btn active" data-filter="all">Semua</button>
-            <button class="cat-btn" data-filter="makanan">Makanan</button>
-            <button class="cat-btn" data-filter="minuman">Minuman</button>
-            <button class="cat-btn" data-filter="cemilan">Cemilan</button>
-        </div>
 
-        <div class="menu-grid" id="menuGrid">
-            {% for m in makanan %}
-            <div class="menu-card" data-category="makanan" onclick="addToCart({{ m.id_menu }}, '{{ m.nama_menu }}', {{ m.harga }})">
-                <img src="{{ m.gambar_menu if m.gambar_menu else 'https://via.placeholder.com/300?text=Food' }}" alt="{{ m.nama_menu }}" class="menu-img">
-                <div class="menu-info">
-                    <div class="m-title">{{ m.nama_menu }}</div>
-                    <div class="m-price">Rp {{ "{:,.0f}".format(m.harga).replace(',', '.') }}</div>
-                </div>
-            </div>
-            {% endfor %}
-            {% for m in minuman %}
-            <div class="menu-card" data-category="minuman" onclick="addToCart({{ m.id_menu }}, '{{ m.nama_menu }}', {{ m.harga }})">
-                <img src="{{ m.gambar_menu if m.gambar_menu else 'https://via.placeholder.com/300?text=Drink' }}" alt="{{ m.nama_menu }}" class="menu-img">
-                <div class="menu-info">
-                    <div class="m-title">{{ m.nama_menu }}</div>
-                    <div class="m-price">Rp {{ "{:,.0f}".format(m.harga).replace(',', '.') }}</div>
-                </div>
-            </div>
-            {% endfor %}
-            {% for m in cemilan %}
-            <div class="menu-card" data-category="cemilan" onclick="addToCart({{ m.id_menu }}, '{{ m.nama_menu }}', {{ m.harga }})">
-                <img src="{{ m.gambar_menu if m.gambar_menu else 'https://via.placeholder.com/300?text=Snack' }}" alt="{{ m.nama_menu }}" class="menu-img">
-                <div class="menu-info">
-                    <div class="m-title">{{ m.nama_menu }}</div>
-                    <div class="m-price">Rp {{ "{:,.0f}".format(m.harga).replace(',', '.') }}</div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+<!-- Header modifiers via script -->
+<div id="view-menu" class="view-section active">
+    <!-- Categories Filter -->
+    <div class="pos-categories">
+        <button class="cat-btn active" onclick="filterMenu('all')">Semua Menu</button>
+        <button class="cat-btn" onclick="filterMenu('makanan')">Makanan</button>
+        <button class="cat-btn" onclick="filterMenu('minuman')">Minuman</button>
+        <button class="cat-btn" onclick="filterMenu('cemilan')">Cemilan</button>
     </div>
 
-    <!-- KANAN: CART -->
-    <div class="cart-section">
-        <div class="cart-header">
-            <h3><i class="fas fa-shopping-basket" style="color: var(--color-primary);"></i> Keranjang Pesanan</h3>
-        </div>
-        
-        <div class="cart-items" id="cartItems">
-            <div class="empty-cart" id="emptyCart">
-                <i class="fas fa-box-open"></i>
-                <span>Belum ada pesanan</span>
+    <!-- Exact Customer Menu Grid -->
+    <div class="menu-grid" id="menuContainer">
+        {% macro render_pos_card(menu) %}
+        <div class="menu-card {% if menu.status_menu == 'Habis' %}habis{% endif %}" data-category="{{ menu.kategori|lower }}" onclick="addToCart({{ menu.id_menu }}, '{{ menu.nama_menu }}', {{ menu.harga }})" style="position: relative;">
+            {% if menu.status_menu == 'Habis' %}
+            <div class="habis-badge">HABIS</div>
+            {% endif %} 
+            
+            {% if menu.gambar_menu %}
+            <img src="{{ menu.gambar_menu }}" alt="{{ menu.nama_menu }}" class="menu-img" />
+            {% else %}
+            <div style="height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc;">
+                <i class="fas fa-coffee"></i>
+            </div>
+            {% endif %}
+            
+            <div class="menu-details">
+                <h3 class="menu-title">{{ menu.nama_menu }}</h3>
+                <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 1rem; height: 40px; overflow: hidden;">
+                    {{ menu.deskripsi }}
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="menu-price">Rp {{ "{:,.0f}".format(menu.harga).replace(',', '.') }}</div>
+                    <!-- POS Indicator instead of Add to Cart Button -->
+                    <div style="background: rgba(140, 94, 53, 0.1); color: var(--color-primary); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
             </div>
         </div>
+        {% endmacro %}
 
-        <div class="cart-footer">
-            <div style="display: flex; gap: 1rem;">
-                <div class="c-form-group" style="flex: 2;">
-                    <input type="text" class="c-input" id="namaPelanggan" placeholder="Nama Pelanggan *" required>
-                </div>
-                <div class="c-form-group" style="flex: 1;">
-                    <input type="text" class="c-input" id="nomorMeja" placeholder="Meja">
-                </div>
-            </div>
-            <div class="c-form-group">
-                <input type="text" class="c-input" id="noHp" placeholder="No. WA (Opsional untuk struk)">
+        {% for m in makanan %} {{ render_pos_card(m) }} {% endfor %}
+        {% for m in minuman %} {{ render_pos_card(m) }} {% endfor %}
+        {% for m in cemilan %} {{ render_pos_card(m) }} {% endfor %}
+    </div>
+
+    <!-- Floating Cart Bar -->
+    <div class="floating-cart" id="floatingCart">
+        <div class="fc-info">
+            <span class="fc-title" id="fcCount">0 Item Terpilih</span>
+            <span class="fc-total" id="fcTotal">Rp 0</span>
+        </div>
+        <button class="fc-btn" onclick="toggleView('checkout')">
+            Lanjut Checkout <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+
+<!-- VIEW 2: CHECKOUT (Halaman 2) -->
+<div id="view-checkout" class="view-section">
+    <div style="margin-bottom: 2rem;">
+        <button class="btn-back" style="display: inline-block;" onclick="toggleView('menu')">
+            <i class="fas fa-arrow-left"></i> Kembali ke Menu
+        </button>
+    </div>
+
+    <div class="checkout-container">
+        <!-- Rincian Pesanan (Kiri) -->
+        <div class="ck-card">
+            <h3 class="ck-title"><i class="fas fa-shopping-basket"></i> Rincian Pesanan</h3>
+            <div class="ck-cart-list" id="ckCartList">
+                <!-- Javascript will populate this -->
             </div>
             
-            <div class="payment-methods">
-                <button class="pm-btn active" onclick="setPayment('Tunai')" id="btnTunai"><i class="fas fa-money-bill-wave"></i> Tunai</button>
-                <button class="pm-btn" onclick="setPayment('QRIS')" id="btnQRIS"><i class="fas fa-qrcode"></i> QRIS</button>
+            <div class="ck-total-row">
+                <span class="ck-total-label">Total Tagihan</span>
+                <span class="ck-total-val" id="ckTotal">Rp 0</span>
+            </div>
+        </div>
+
+        <!-- Form Pembeli & Pembayaran (Kanan) -->
+        <div class="ck-card">
+            <h3 class="ck-title"><i class="fas fa-user-edit"></i> Data Pemesan</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Nama Pelanggan *</label>
+                <input type="text" class="form-input" id="namaPelanggan" placeholder="Masukkan nama panggilan..." required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Nomor Meja</label>
+                    <input type="text" class="form-input" id="nomorMeja" placeholder="Contoh: 12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">No. WA (Opsional)</label>
+                    <input type="text" class="form-input" id="noHp" placeholder="08123xxx">
+                </div>
             </div>
 
-            <div class="total-box">
-                <span class="total-label">Total Tagihan</span>
-                <span class="total-amount" id="totalAmount">Rp 0</span>
+            <h3 class="ck-title" style="margin-top: 1rem;"><i class="fas fa-wallet"></i> Metode Pembayaran</h3>
+            <div class="payment-grid">
+                <div class="pm-card active" id="pm-Tunai" onclick="setPayment('Tunai')">
+                    <i class="fas fa-money-bill-wave" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                    Tunai
+                </div>
+                <div class="pm-card" id="pm-QRIS" onclick="setPayment('QRIS')">
+                    <i class="fas fa-qrcode" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                    QRIS
+                </div>
             </div>
 
-            <button class="btn-process" id="btnProcess" onclick="processOrder()" disabled>
-                Proses Pesanan <i class="fas fa-arrow-right"></i>
+            <button class="btn-submit" id="btnSubmitOrder" onclick="processOrder()">
+                <i class="fas fa-check-circle"></i> Proses & Selesaikan Pesanan
             </button>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -393,27 +414,44 @@
     let cart = [];
     let paymentMethod = 'Tunai';
 
-    // Filter Categories
-    const filterBtns = document.querySelectorAll('.cat-btn');
-    const menuCards = document.querySelectorAll('.menu-card');
+    // Toggle Views
+    function toggleView(viewName) {
+        document.getElementById('view-menu').classList.remove('active');
+        document.getElementById('view-checkout').classList.remove('active');
+        
+        document.getElementById('view-' + viewName).classList.add('active');
+        
+        // Update top title if needed
+        const titleEl = document.querySelector('.topbar-title h2');
+        if(titleEl) {
+            if(viewName === 'checkout') {
+                titleEl.innerHTML = 'Checkout Pesanan';
+                window.scrollTo(0,0);
+                renderCheckoutCart();
+            } else {
+                titleEl.innerHTML = 'Point of Sale (POS)';
+            }
+        }
+    }
 
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            const filter = btn.dataset.filter;
-            menuCards.forEach(card => {
-                if (filter === 'all' || card.dataset.category === filter) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+    // Filter Menu
+    function filterMenu(category) {
+        // Update Buttons
+        document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Update Cards
+        const cards = document.querySelectorAll('.menu-card');
+        cards.forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
         });
-    });
+    }
 
-    // Cart Logic
+    // Add to Cart Logic
     function addToCart(id, name, price) {
         const existing = cart.find(item => item.id_menu === id);
         if (existing) {
@@ -428,9 +466,82 @@
                 subtotal: price
             });
         }
-        renderCart();
+        
+        // Show subtle notification
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `${name} ditambahkan!`,
+            showConfirmButton: false,
+            timer: 1500
+        });
+
+        updateFloatingCart();
     }
 
+    // Update Floating Cart Bar
+    function updateFloatingCart() {
+        const floatingCart = document.getElementById('floatingCart');
+        const countEl = document.getElementById('fcCount');
+        const totalEl = document.getElementById('fcTotal');
+
+        let totalItems = 0;
+        let totalPrice = 0;
+
+        cart.forEach(item => {
+            totalItems += item.jumlah;
+            totalPrice += item.subtotal;
+        });
+
+        if (totalItems > 0) {
+            floatingCart.classList.add('visible');
+            countEl.innerText = `${totalItems} Item Terpilih`;
+            totalEl.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
+        } else {
+            floatingCart.classList.remove('visible');
+        }
+    }
+
+    // Checkout View Cart Render
+    function renderCheckoutCart() {
+        const listEl = document.getElementById('ckCartList');
+        const totalEl = document.getElementById('ckTotal');
+        
+        listEl.innerHTML = '';
+        let totalPrice = 0;
+
+        if (cart.length === 0) {
+            listEl.innerHTML = '<div style="text-align:center; padding: 2rem; color: #999;">Keranjang kosong. Silakan kembali ke menu.</div>';
+            totalEl.innerText = 'Rp 0';
+            document.getElementById('btnSubmitOrder').disabled = true;
+            return;
+        }
+        
+        document.getElementById('btnSubmitOrder').disabled = false;
+
+        cart.forEach(item => {
+            totalPrice += item.subtotal;
+            listEl.innerHTML += `
+                <div class="ck-item">
+                    <div class="ck-item-info">
+                        <span class="ck-item-name">${item.nama_menu}</span>
+                        <span class="ck-item-price">Rp ${item.subtotal.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="updateQty(${item.id_menu}, -1)"><i class="fas fa-minus"></i></button>
+                        <span style="font-weight: 800; width: 20px; text-align: center;">${item.jumlah}</span>
+                        <button class="qty-btn" onclick="updateQty(${item.id_menu}, 1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            `;
+        });
+
+        totalEl.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
+        updateFloatingCart(); // Keep synced
+    }
+
+    // Change Qty from Checkout
     function updateQty(id, delta) {
         const index = cart.findIndex(item => item.id_menu === id);
         if (index !== -1) {
@@ -440,60 +551,24 @@
             } else {
                 cart[index].subtotal = cart[index].jumlah * cart[index].harga;
             }
-            renderCart();
+            renderCheckoutCart();
+            
+            if (cart.length === 0) {
+                // Auto return to menu if empty
+                setTimeout(() => toggleView('menu'), 1000);
+            }
         }
     }
 
-    function renderCart() {
-        const container = document.getElementById('cartItems');
-        const empty = document.getElementById('emptyCart');
-        const totalEl = document.getElementById('totalAmount');
-        const btnProcess = document.getElementById('btnProcess');
-        
-        // Clear except empty msg
-        Array.from(container.children).forEach(child => {
-            if (child.id !== 'emptyCart') child.remove();
-        });
-
-        if (cart.length === 0) {
-            empty.style.display = 'flex';
-            totalEl.innerText = 'Rp 0';
-            btnProcess.disabled = true;
-            return;
-        }
-
-        empty.style.display = 'none';
-        btnProcess.disabled = false;
-        
-        let total = 0;
-
-        cart.forEach(item => {
-            total += item.subtotal;
-            const div = document.createElement('div');
-            div.className = 'cart-item';
-            div.innerHTML = `
-                <div class="c-info">
-                    <div class="c-name">${item.nama_menu}</div>
-                    <div class="c-price">Rp ${item.subtotal.toLocaleString('id-ID')}</div>
-                </div>
-                <div class="c-actions">
-                    <button class="qty-btn" onclick="updateQty(${item.id_menu}, -1)"><i class="fas fa-minus"></i></button>
-                    <span class="qty-val">${item.jumlah}</span>
-                    <button class="qty-btn" onclick="updateQty(${item.id_menu}, 1)"><i class="fas fa-plus"></i></button>
-                </div>
-            `;
-            container.appendChild(div);
-        });
-
-        totalEl.innerText = `Rp ${total.toLocaleString('id-ID')}`;
-    }
-
+    // Set Payment Method
     function setPayment(method) {
         paymentMethod = method;
-        document.getElementById('btnTunai').classList.toggle('active', method === 'Tunai');
-        document.getElementById('btnQRIS').classList.toggle('active', method === 'QRIS');
+        document.getElementById('pm-Tunai').classList.remove('active');
+        document.getElementById('pm-QRIS').classList.remove('active');
+        document.getElementById('pm-' + method).classList.add('active');
     }
 
+    // Process Order to Backend
     async function processOrder() {
         const nama = document.getElementById('namaPelanggan').value.trim();
         const meja = document.getElementById('nomorMeja').value.trim();
@@ -503,8 +578,12 @@
             Swal.fire('Perhatian', 'Nama pelanggan wajib diisi', 'warning');
             return;
         }
+        if (cart.length === 0) {
+            Swal.fire('Perhatian', 'Keranjang kosong', 'warning');
+            return;
+        }
         
-        const btn = document.getElementById('btnProcess');
+        const btn = document.getElementById('btnSubmitOrder');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
         
@@ -527,30 +606,25 @@
             
             if (res.ok && data.status === 'success') {
                 Swal.fire({
-                    title: 'Berhasil!',
-                    text: 'Pesanan telah masuk antrean.',
+                    title: 'Pesanan Dibuat!',
+                    text: 'Berhasil dikirim ke antrean.',
                     icon: 'success',
                     timer: 2000,
                     showConfirmButton: false
                 }).then(() => {
                     // Reset
                     cart = [];
-                    renderCart();
-                    document.getElementById('namaPelanggan').value = '';
-                    document.getElementById('nomorMeja').value = '';
-                    document.getElementById('noHp').value = '';
-                    // Redirect to dashboard
                     window.location.href = "{{ url_for('kasir.dashboard') }}";
                 });
             } else {
                 Swal.fire('Error', data.message || 'Gagal memproses pesanan', 'error');
                 btn.disabled = false;
-                btn.innerHTML = 'Proses Pesanan <i class="fas fa-arrow-right"></i>';
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Proses & Selesaikan Pesanan';
             }
         } catch (e) {
             Swal.fire('Error', 'Terjadi kesalahan sistem', 'error');
             btn.disabled = false;
-            btn.innerHTML = 'Proses Pesanan <i class="fas fa-arrow-right"></i>';
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Proses & Selesaikan Pesanan';
         }
     }
 </script>
