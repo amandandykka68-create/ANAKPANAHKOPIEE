@@ -277,11 +277,12 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
 <!-- Top Bar dengan Tab dan Export -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
   <!-- Tab Bar -->
+  {% set active_tab = request.args.get('tab', 'harian') %}
   <div class="tab-bar" style="margin-bottom: 0;">
-    <button class="tab-btn active" onclick="switchTab('harian', this)">
+    <button class="tab-btn {% if active_tab == 'harian' %}active{% endif %}" onclick="switchTab('harian', this)">
       <i class="fas fa-calendar-day"></i> Harian
     </button>
-    <button class="tab-btn" onclick="switchTab('bulanan', this)">
+    <button class="tab-btn {% if active_tab == 'bulanan' %}active{% endif %}" onclick="switchTab('bulanan', this)">
       <i class="fas fa-calendar-alt"></i> Bulanan
     </button>
   </div>
@@ -306,8 +307,9 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
 <!-- ═══════════════════════════════════════
      TAB HARIAN
 ════════════════════════════════════════ -->
-<div class="tab-content active" id="tab-harian">
+<div class="tab-content {% if active_tab == 'harian' %}active{% endif %}" id="tab-harian">
   <form method="GET" action="{{ url_for('owner.laporan') }}" id="formHarian">
+    <input type="hidden" name="tab" value="harian" />
     <input type="hidden" name="laporan_bulan" value="{{ laporan_bulan }}" />
     <input type="hidden" name="laporan_tahun" value="{{ laporan_tahun }}" />
     <div class="laporan-filter">
@@ -453,8 +455,9 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
 <!-- ═══════════════════════════════════════
      TAB BULANAN
 ════════════════════════════════════════ -->
-<div class="tab-content" id="tab-bulanan">
+<div class="tab-content {% if active_tab == 'bulanan' %}active{% endif %}" id="tab-bulanan">
   <form method="GET" action="{{ url_for('owner.laporan') }}" id="formBulanan">
+    <input type="hidden" name="tab" value="bulanan" />
     <input type="hidden" name="laporan_tgl" value="{{ laporan_tgl }}" />
     <div class="laporan-filter">
       <div class="lf-group">
@@ -475,7 +478,7 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
       <div class="lf-group">
         <label class="lf-label"><i class="fas fa-calendar"></i> Tahun</label>
         <select name="laporan_tahun" class="lf-select">
-          {% for y in range(2024, 2028) %}
+          {% for y in range(2026, 2028) %}
           <option value="{{ y }}" {% if y == laporan_tahun %}selected{% endif %}>
 
             {{ y }}
@@ -587,6 +590,13 @@ endblock %} {% block page_title %}Laporan{% endblock %} {% block extra_css %}
           <td style="padding: 1rem 0; color: #444; text-align: right">
             Rp {{ "{:,.2f}".format(info.revenue).replace(',', '_').replace('.',
             ',').replace('_', '.') }}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" style="text-align: center; padding: 3rem 0; color: #9ca3af; font-weight: 600;">
+            <i class="fas fa-calendar-times" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+            Belum ada transaksi di bulan ini.
           </td>
         </tr>
         {% endfor %}

@@ -38,6 +38,13 @@ def manajemen_menu():
 def add_menu():
     if not check_owner(): return redirect(url_for('auth.login'))
     nama_menu   = request.form.get('nama_menu')
+    
+    # Cek apakah nama menu sudah ada (case-insensitive)
+    existing_menu = Menu.query.filter(Menu.nama_menu.ilike(nama_menu)).first()
+    if existing_menu:
+        flash(f'Menu dengan nama "{nama_menu}" sudah ada!', 'error')
+        return redirect(url_for('owner.manajemen_menu'))
+
     deskripsi   = request.form.get('deskripsi')
     harga       = request.form.get('harga')
     kategori    = request.form.get('kategori', 'Minuman')
@@ -62,7 +69,16 @@ def edit_menu(id_menu):
     if not check_owner(): return redirect(url_for('auth.login'))
     menu = Menu.query.get_or_404(id_menu)
     
-    menu.nama_menu   = request.form.get('nama_menu')
+    new_nama_menu = request.form.get('nama_menu')
+    
+    # Cek jika nama menu diubah dan apakah nama baru sudah ada
+    if new_nama_menu.lower() != menu.nama_menu.lower():
+        existing_menu = Menu.query.filter(Menu.nama_menu.ilike(new_nama_menu)).first()
+        if existing_menu:
+            flash(f'Menu dengan nama "{new_nama_menu}" sudah ada!', 'error')
+            return redirect(url_for('owner.manajemen_menu'))
+            
+    menu.nama_menu   = new_nama_menu
     menu.deskripsi   = request.form.get('deskripsi')
     menu.harga       = float(request.form.get('harga'))
     menu.kategori    = request.form.get('kategori', 'Minuman')
@@ -222,17 +238,18 @@ def laporan():
         chart_labels_b.append(str(day))
         chart_data_b.append(rev)
 
-    # All-time Monthly Aggregate for Table
-    tx_all_selesai = Transaksi.query.filter_by(status_pesanan='Selesai').with_entities(Transaksi.tanggal_transaksi, Transaksi.total_harga).all()
-    monthly_aggregates = {}
-    for t in tx_all_selesai:
-        my = t.tanggal_transaksi.strftime('%m-%Y')
-        if my not in monthly_aggregates:
-            monthly_aggregates[my] = {'count': 0, 'revenue': 0, 'sort_key': t.tanggal_transaksi.strftime('%Y-%m')}
-        monthly_aggregates[my]['count'] += 1
-        monthly_aggregates[my]['revenue'] += t.total_harga
-    
-    laporan_transaksi_bulan = sorted(monthly_aggregates.items(), key=lambda x: x[1]['sort_key'], reverse=True)
+    # Daily Aggregate for Table (Selected Month)
+    daily_aggregates = {}
+    for t in tx_bulanan:
+        if t.status_pesanan == 'Selesai':
+            d_str = t.tanggal_transaksi.strftime('%d-%m-%Y')
+            sort_key = t.tanggal_transaksi.strftime('%Y-%m-%d')
+            if d_str not in daily_aggregates:
+                daily_aggregates[d_str] = {'count': 0, 'revenue': 0, 'sort_key': sort_key}
+            daily_aggregates[d_str]['count'] += 1
+            daily_aggregates[d_str]['revenue'] += t.total_harga
+            
+    laporan_transaksi_bulan = sorted(daily_aggregates.items(), key=lambda x: x[1]['sort_key'], reverse=True)
 
     return render_template(
         'owner/laporan.html',

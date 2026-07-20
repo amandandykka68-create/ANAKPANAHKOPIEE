@@ -10,8 +10,9 @@ def create_app():
                 
     app.config.from_object(Config)
     
-    # Initialize Database
-    db.init_app(app)
+    # Initialize Database dari model.py
+    db.init_app(app) 
+
     
     # Import Blueprints
     from Backend.utama import utama_bp
